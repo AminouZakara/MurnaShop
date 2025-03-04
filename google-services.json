@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1063758812584",
+    "project_id": "flipex-647fb",
+    "storage_bucket": "flipex-647fb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063758812584:android:14245bcb880d395b79f99d",
+        "android_client_info": {
+          "package_name": "com.aminou_zakara.flipex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1063758812584-0698a0ts0aqhu6t0h7hg1oevgqbtdti1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aminou_zakara.flipex",
+            "certificate_hash": "7ce711e60d9ca75236c04e01124b5b010d67d746"
+          }
+        },
+        {
+          "client_id": "1063758812584-pdgupb3i44618f97262abj16p297unja.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aminou_zakara.flipex",
+            "certificate_hash": "338e8b06a30bf25a8a4e0eca63e278d69ff38f3f"
+          }
+        },
+        {
+          "client_id": "1063758812584-6do33p190b7n02roda5rhrkqkhagcfq1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg8iC3Mp_QGYb3qTsNLsUISPI-Khrsz4I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1063758812584-6do33p190b7n02roda5rhrkqkhagcfq1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
