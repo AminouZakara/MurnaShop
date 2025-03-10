@@ -12,7 +12,7 @@ const LoginScreen = () => {
     const navigation = useNavigation()
     const db = getFirestore(app)
     GoogleSignin.configure({
-        webClientId: "1063758812584-6do33p190b7n02roda5rhrkqkhagcfq1.apps.googleusercontent.com",
+        webClientId: "1082330876834-ejjoev3pegtcp9s10ug5j0l76ok2lsk9.apps.googleusercontent.com",
     });
 
     //autosignin
@@ -44,20 +44,19 @@ const LoginScreen = () => {
             const user = userCredentials.user;
             setAuthUser(userCredentials.user)
             //if the user doesn't exist save them in firestore
-            const userRef = doc(db, "flipexUsers", user.uid);
+            const userRef = doc(db, "murnaShoppingUsers", user.uid);
             if (userCredentials.additionalUserInfo.isNewUser) {
                 await setDoc(userRef, {
                     name: user.displayName,
                     email: user.email,
                     photoURL: user.photoURL,
-                    photoURL: user.photoURL,
                     userId: user.uid,
                     city: "",
                     address: "",
+                    storeAddress:"",
                     phoneNumber: "",
                     role: 'user',
-                    challengeStatus: "notStarted",
-                    award: 0,
+                    sellerOf: "",
                     createdAt: new Date(),
                 });
                 console.log('User created');

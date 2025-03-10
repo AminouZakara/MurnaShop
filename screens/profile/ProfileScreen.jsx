@@ -51,6 +51,23 @@ const ProfileScreen = () => {
                     textAlign:"center"
                 }}>Logout</Text>
             </TouchableOpacity>
+            <TouchableOpacity 
+            onPress={()=> navigation.navigate("AdminHomeScreen")}
+            style={{
+                marginTop: 300,
+                backgroundColor: '#FF9900',
+                padding: 10,
+                borderRadius: 10,
+                margin: 10
+            }}
+            
+            >
+                <Text style={{
+                    color: 'white',
+                    fontSize: 18,
+                    textAlign:"center"
+                }}>Admin Panel</Text>
+            </TouchableOpacity>
         </View>
       
     </View>

@@ -1,49 +1,41 @@
 {
   "project_info": {
-    "project_number": "1063758812584",
-    "project_id": "flipex-647fb",
-    "storage_bucket": "flipex-647fb.firebasestorage.app"
+    "project_number": "1082330876834",
+    "project_id": "murna-shopping",
+    "storage_bucket": "murna-shopping.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1063758812584:android:14245bcb880d395b79f99d",
+        "mobilesdk_app_id": "1:1082330876834:android:d822f9c983fd44c206c0fb",
         "android_client_info": {
-          "package_name": "com.aminou_zakara.flipex"
+          "package_name": "com.aminou_zakara.murnashopping"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1063758812584-0698a0ts0aqhu6t0h7hg1oevgqbtdti1.apps.googleusercontent.com",
+          "client_id": "1082330876834-gpi9ahh9s1qie8b349kdmf82nv5o4tnm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.aminou_zakara.flipex",
-            "certificate_hash": "7ce711e60d9ca75236c04e01124b5b010d67d746"
+            "package_name": "com.aminou_zakara.murnashopping",
+            "certificate_hash": "a0e7cf67b286a69a0f5ccb75e7c765e51775d773"
           }
         },
         {
-          "client_id": "1063758812584-pdgupb3i44618f97262abj16p297unja.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.aminou_zakara.flipex",
-            "certificate_hash": "338e8b06a30bf25a8a4e0eca63e278d69ff38f3f"
-          }
-        },
-        {
-          "client_id": "1063758812584-6do33p190b7n02roda5rhrkqkhagcfq1.apps.googleusercontent.com",
+          "client_id": "1082330876834-ejjoev3pegtcp9s10ug5j0l76ok2lsk9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDg8iC3Mp_QGYb3qTsNLsUISPI-Khrsz4I"
+          "current_key": "AIzaSyDAtxj3G95kOsC1aHskCejgD_Gx4opEHeU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1063758812584-6do33p190b7n02roda5rhrkqkhagcfq1.apps.googleusercontent.com",
+              "client_id": "1082330876834-ejjoev3pegtcp9s10ug5j0l76ok2lsk9.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

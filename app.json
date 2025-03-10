@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "flipex",
-    "slug": "flipex",
+    "name": "Murna Shopping",
+    "slug": "murnashopping",
     "plugins": [
       [
         "@react-native-google-signin/google-signin",
@@ -21,22 +21,26 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aminou-zakar.-murnashopping",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.aminou_zakara.flipex",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "package": "com.aminou_zakara.murnashopping"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "3c58b130-7d84-4e6f-a827-5acb936b0ff2"
+        "projectId": "4f01ffe6-aa76-4af3-b7a8-ab817ac73186"
       }
     }
   }
