@@ -2,8 +2,10 @@ import { StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import SubCategoryProp from '../../../props/home/subCategoryProp/SubCategoryProp'
 import ProductList from '../../../props/home/productLists/ProductList'
+import GenderProp from '../../../props/home/genderProps/GenderProp'
+import KidsProp from '../../../props/home/kidsProps/KidsProp'
 
-const KidsProducts = ({category}) => {
+const KidsProducts = ({ productFor }) => {
   const kidsCategories = [
     { id: 1, name: "Tout" },
     { id: 2, name: 'Vêtement' },
@@ -36,8 +38,9 @@ const KidsProducts = ({category}) => {
   const [selectedCategory, setSelectedCategory] = useState("Tout")
   return (
     <View style={styles.container}>
-      <SubCategoryProp subCategory={kidsCategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
-      <ProductList category={category} subCategory={selectedCategory} />
+      <KidsProp productFor={productFor} subCategory={kidsCategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+
+
 
     </View>
   )

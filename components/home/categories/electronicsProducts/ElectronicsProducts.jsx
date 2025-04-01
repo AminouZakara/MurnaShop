@@ -1,11 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import SubCategoryProp from '../../../props/home/subCategoryProp/SubCategoryProp'
-import ProductList from '../../../props/home/productLists/ProductList'
 
 const ElectronicsProducts = ({category}) => {
   const electronicsCategories = [
-    { id: 1, name: "All" },
+    { id: 1, name: "Tout" },
     { id: 2, name: 'Téléphone' },
     { id: 3, name: 'Tablette' },
     { id: 4, name: 'Ordinateur portable' },
@@ -43,11 +42,10 @@ const ElectronicsProducts = ({category}) => {
 
 
   ]
-  const [selectedCategory, setSelectedCategory] = useState("All")
+  const [selectedCategory, setSelectedCategory] = useState("Tout")
   return (
     <View style={styles.container}>
-      <SubCategoryProp subCategory={electronicsCategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
-      <ProductList category={category} subCategory={selectedCategory} />
+      <SubCategoryProp category={category} subCategory={electronicsCategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
 
     </View>
   )

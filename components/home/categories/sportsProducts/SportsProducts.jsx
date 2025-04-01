@@ -21,9 +21,7 @@ const SportsProducts = ({category}) => {
   const [selectedCategory, setSelectedCategory] = useState("All")
   return (
     <View style={styles.container}>
-      <SubCategoryProp subCategory={sportsCategories} selectedCategory={ selectedCategory} setSelectedCategory={setSelectedCategory} />
-      <ProductList category={category} subCategory={selectedCategory} />
-
+      <SubCategoryProp category={category} subCategory={sportsCategories} selectedCategory={ selectedCategory} setSelectedCategory={setSelectedCategory} />
     </View>
   )
 }

@@ -18,8 +18,7 @@ const AccessoiresProducts = ({category}) => {
   const [selectedCategory, setSelectedCategory] = useState("Tout")
   return (
     <View style={styles.container}>
-      <SubCategoryProp subCategory={accsessoiresCategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
-      <ProductList category={category} subCategory={selectedCategory} />
+      <SubCategoryProp category={category} subCategory={accsessoiresCategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
 
     </View>
   )

@@ -1,5 +1,5 @@
 import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useContext, useLayoutEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import Header from '../../components/home/header/Header';
 import AllProducts from '../../components/home/categories/allProducts/AllProducts';
@@ -19,6 +19,7 @@ import VetementsProducts from '../../components/home/categories/vetementsProduct
 import FillesProducts from '../../components/home/categories/fillesProducts/FillesProducts';
 import GarconsProducts from '../../components/home/categories/garconsProducts/GarconsProducts';
 import MaisonProducts from '../../components/home/categories/maisonProducts/MaisonProducts';
+import myContext from '../../context/data/myContext';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -46,8 +47,8 @@ const HomeScreen = () => {
     { id: 9, name: 'Chaussures' },
     { id: 10, name: 'Sacs' },
     { id: 11, name: 'Enfant' },
-    { id: 12, name: 'Filles' },
-    { id: 13, name: 'Garçons' },
+    { id: 12, name: 'Fille' },
+    { id: 13, name: 'Garçon' },
     { id: 14, name: 'Bébé' },
     { id: 15, name: 'Électronique' },
     { id: 16, name: 'Maison' },
@@ -55,6 +56,12 @@ const HomeScreen = () => {
 
   ]
   const [selectedCategory, setSelectedCategory] = useState('Tout');
+
+  const context = useContext(myContext);
+  const { allProducts, calledProducts } = context;
+
+ 
+  
 
   return (
     <View style={styles.container}>
@@ -91,7 +98,7 @@ const HomeScreen = () => {
           ))}
         </ScrollView>
 
-        {/** Show the categories of products */}
+        {/** Shorts advs from home screen */}
         <View style={{
           paddingVertical: 4,
           paddingHorizontal: 8,
@@ -103,16 +110,16 @@ const HomeScreen = () => {
 
         </View>
         <View>
-          {selectedCategory === "Tout" && <AllProducts category={"Tous les produits"} />}
-          {selectedCategory === "Femme" && <FemmeProducts category="Femme" />}
+          {selectedCategory === "Tout" && <AllProducts category={"Tous les produits"} allProducts={allProducts} />}
+          {selectedCategory === "Femme" && <FemmeProducts productFor="Femme" calledProducts={calledProducts} />}
+          {selectedCategory === "Homme" && <HommeProducts productFor="Homme" calledProducts={calledProducts} />}
           {selectedCategory === "Beauté" && <BeautyProducts category="Beauté" />}
-          {selectedCategory === "Homme" && <HommeProducts category="Homme" />}
           {selectedCategory === "Vêtements" && <VetementsProducts category="Vêtements" />}
           {selectedCategory === "Bijoux" && <JewelryProducts category="Bijoux" />}
           {selectedCategory === "Sports" && <SportsProducts category="Sports" />}
-          {selectedCategory === "Enfant" && <KidsProducts category="Enfant" />}
-          {selectedCategory === "Filles" && <FillesProducts category="Filles" />}
-          {selectedCategory === "Garçons" && <GarconsProducts category="Garçons" />}
+          {selectedCategory === "Enfant" && <KidsProducts productFor="Enfant" />}
+          {selectedCategory === "Fille" && <FillesProducts productFor="Fille" calledProducts={calledProducts}  />}
+          {selectedCategory === "Garçon" && <GarconsProducts productFor="Garçon" calledProducts={calledProducts}  />}
           {selectedCategory === "Bébé" && <BabyProducts category="Bébé" />}
           {selectedCategory === "Électronique" && <ElectronicsProducts category="Électronique" />}
           {selectedCategory === "Maison" && <MaisonProducts category="Maison" />}

@@ -1,9 +1,11 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
-import SubCategoryProp from '../../../props/home/subCategoryProp/SubCategoryProp'
-import ProductList from '../../../props/home/productLists/ProductList'
+import GenderProp from '../../../props/home/genderProps/GenderProp'
 
-const FemmeProducts = ({category}) => {
+
+
+const FemmeProducts = ({ productFor }) => {
+
 
   const womencategories = [
     { id: 1, name: "Tout" },
@@ -49,10 +51,10 @@ const FemmeProducts = ({category}) => {
   const [selectedCategory, setSelectedCategory] = useState("Tout")
 
   return (
-    
+
     <View style={styles.container}>
-      <SubCategoryProp subCategory={womencategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
-      <ProductList category={category} subCategory={selectedCategory} />
+      <GenderProp productFor={productFor} subCategory={womencategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+
 
     </View>
 

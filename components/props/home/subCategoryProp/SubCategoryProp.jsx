@@ -1,38 +1,106 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import ProductList from '../productLists/ProductList'
+import { collection, getDocs, query, where } from 'firebase/firestore'
+import { db } from '../../../../firebaseConfig'
+
+const SubCategoryProp = ({ category, productFor, subCategory, selectedCategory, setSelectedCategory }) => {
+    const [calledProducts, setCalledProducts] = useState([]);
+    const [loading, setLoading] = useState(true)
 
 
-const SubCategoryProp = ({ subCategory, selectedCategory, setSelectedCategory }) => {
+    // get prodcutFor from the database
+    useEffect(() => {
+        getCalledProducts();
+    }, [])
+    const getCalledProducts = async () => {
+        setLoading(true)
+        try {
+            const q = query(collection(db, "murnaShoppingPosts"), where("category", "==", category));
+            const querySnapshot = await getDocs(q);
+            const data = querySnapshot.docs.map((doc) => {
+                return {
+                    id: doc.id,
+                    ...doc.data(),
+                };
+            });
+            setCalledProducts(data);
+            setLoading(false)
+        } catch (error) {
+            console.log(error);
+            setLoading(false)
+        }
+    }
+    console.log("products:", calledProducts);
+
+   
+
+
+
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    useEffect(
+        () => {
+            if (calledProducts.length > 0) {
+                if (selectedCategory === "Tout") {
+                    setFilteredProducts(calledProducts)
+                } else {
+                    const filteredProducts = calledProducts.filter((product) => product.productType == selectedCategory);
+                    setFilteredProducts(filteredProducts);
+                }
+                
+
+            }
+        },
+        [calledProducts, productFor, subCategory]
+    );
+
+    //console.log("filteredProducts:", filteredProducts);
+
     return (
-        <ScrollView
-            showsHorizontalScrollIndicator={false}
-            horizontal={true}
-            style={{
-                flexDirection: 'row',
-            }}>
-            {subCategory.map((category, index) => (
-                <TouchableOpacity
-                    key={index}
+        <View>
+            <ScrollView
+                showsHorizontalScrollIndicator={false}
+                horizontal={true}
+                style={{
+                    flexDirection: 'row',
+                }}>
+                {subCategory.map((category, index) => (
+                    <TouchableOpacity
+                        key={index}
 
-                    style={{
-                        //if the item is selected, change the color
-                    }}
-                    onPress={() => { setSelectedCategory(category.name) }}
-                >
-                    <View
-                        style={styles.category}
-
+                        style={{
+                            //if the item is selected, change the color
+                        }}
+                        onPress={() => { setSelectedCategory(category.name) }}
                     >
-                        <View style={styles.imageContainer}>
-                            <Image source={{ uri: category?.icon }} style={styles.image} />
+                        <View
+                            style={styles.category}
+
+                        >
+                            <View style={styles.imageContainer}>
+                                <Image source={{ uri: category?.icon }} style={styles.image} />
+                            </View>
+                            <Text style={{ textAlign: "center", fontSize: 12, color: selectedCategory === category.name ? '#FF9900' : '#000' }}>{category.name}</Text>
                         </View>
-                        <Text style={{ textAlign: "center", fontSize: 12, color: selectedCategory === category.name ? '#FF9900' : '#000' }}>{category.name}</Text>
-                    </View>
 
-                </TouchableOpacity>
-            ))}
+                    </TouchableOpacity>
+                ))}
 
-        </ScrollView>
+            </ScrollView>
+
+            <Text>category: {category} </Text>
+            <Text>productFor: {productFor} </Text>
+            <Text>selectedCategory: {selectedCategory} </Text>
+            <ProductList productFor={productFor} subCategory={selectedCategory} productLists={filteredProducts} />
+
+
+
+
+
+
+
+        </View>
+
     )
 }
 

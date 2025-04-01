@@ -1,9 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import SubCategoryProp from '../../../props/home/subCategoryProp/SubCategoryProp'
-import ProductList from '../../../props/home/productLists/ProductList'
+import GenderProp from '../../../props/home/genderProps/GenderProp'
 
-const HommeProducts = ({category}) => {
+
+const HommeProducts = ({productFor}) => {
+ 
   const menCategories = [
     { id: 1, name: "Tout" },
     { id: 2, name: 'Vêtement' },
@@ -37,8 +39,7 @@ const HommeProducts = ({category}) => {
   const [selectedCategory, setSelectedCategory] = useState("Tout")
   return (
     <View style={styles.container}>
-      <SubCategoryProp subCategory={menCategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
-      <ProductList category={category} subCategory={selectedCategory} />
+      <GenderProp productFor={productFor}  subCategory={menCategories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
 
 
     </View>
