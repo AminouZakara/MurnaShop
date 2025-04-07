@@ -15,8 +15,6 @@ import FavoriteScreen from './screens/favorite/FavoriteScreen';
 import SearchScreen from './screens/home/SearchScreen';
 import AdminHomeScreen from './screens/admin/AdminHomeScreen';
 import AddNewProduct from './screens/admin/addNewProduct/AddNewProduct';
-import MyProducts from './screens/admin/myProducts/MyProducts';
-import SoldProducts from './screens/admin/myProducts/SoldProducts';
 import ProductDetails from './screens/home/productDetails/ProductDetails';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadCart } from './redux/cartSlice';
@@ -26,6 +24,13 @@ import AddressScreen from './screens/cart/AddressScreen';
 import EditProfile from './screens/profile/EditProfile';
 import AuthorHomeScreen from './screens/author/AuthorHomeScreen';
 import AddLocations from './screens/author/address/AddLocations';
+import MyOrder from './screens/profile/order/MyOrder';
+import SupportScreen from './screens/profile/support/SupportScreen';
+import SettingsScreen from './screens/profile/settings/SettingsScreen';
+import VotreModePaiement from './screens/profile/settings/VotreModePaiement';
+import LangueScreen from './screens/profile/settings/LangueScreen';
+import AproposCetteApplication from './screens/profile/settings/AproposCetteApplication';
+import ConditionsJuridiquesPolitiques from './screens/profile/settings/ConditionsJuridiquesPolitiques';
 
 const StackNavigator = () => {
     const Tab = createBottomTabNavigator();
@@ -109,15 +114,32 @@ const StackNavigator = () => {
                     options={({ route }) => ({ title: "Adresse de livraison", })}
                 />
 
-                {/* ------------ Profile Screens --------*/}
+                {/* Profile Screens --------*/}
+               
+                {/* ------------ Support --------*/}
+                <Stack.Screen name='SupportScreen' component={SupportScreen} options={{ headerShown: true }} />
+                {/* ------------ Settings --------*/}
+                <Stack.Screen name='SettingsScreen' component={SettingsScreen} options={{ headerShown: true }} />
                 <Stack.Screen name='EditProfile' component={EditProfile} 
                 options={({ route }) => ({ title: "Modifier le profil", })}
                 />
+                <Stack.Screen name='VotreModePaiement' component={VotreModePaiement} options={{ headerShown: true }} />
+                <Stack.Screen name='LangueScreen' component={LangueScreen} options={{ headerShown: true }} />
+                <Stack.Screen name='AproposCetteApplication' component={AproposCetteApplication} options={{ 
+                    headerTitle: 'Apropos de cette application',
+                 }} />
+                <Stack.Screen name='ConditionsJuridiquesPolitiques' component={ConditionsJuridiquesPolitiques} options={{ headerShown: true }} />
+
+                {/* ------------ Order --------*/}
+                <Stack.Screen name='MyOrder' component={MyOrder} options={{ headerShown: true }} />
+
+
+
                 {/* ------------ Admin Screens --------*/}
                 <Stack.Screen name='AdminHomeScreen' component={AdminHomeScreen} options={{ headerShown: true }} />
                 <Stack.Screen name='AddNewProduct' component={AddNewProduct} options={{ headerShown: true }} />
-                <Stack.Screen name='MyProducts' component={MyProducts} options={{ headerShown: false }} />
-                <Stack.Screen name='SoldProducts' component={SoldProducts} options={{ headerShown: false }} />
+                {/* <Stack.Screen name='OrderDetails' component={OrderDetails} options={{ headerShown: true }} /> -*/}
+
 
                 {/* ------------ Author Screens --------*/}
                 <Stack.Screen name='AuthorHomeScreen' component={AuthorHomeScreen} options={{ headerShown : true }} />

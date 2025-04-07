@@ -1,13 +1,41 @@
 import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { collection, doc, getDocs, getFirestore, query, updateDoc, where } from 'firebase/firestore';
 import { app } from '../../firebaseConfig';
 import auth from "@react-native-firebase/auth"
 import { Picker } from '@react-native-picker/picker';
+import Icon from "react-native-vector-icons/MaterialIcons";
+
 
 const EditProfile = () => {
-    const navigation = useNavigation();
+     const navigation = useNavigation()
+        useLayoutEffect(() => {
+          // place the name of the App on right corner, the notification icon on left corner and the search bar bellow them
+          navigation.setOptions({
+            headerTitle: () => (<View
+              style={{ marginLeft: 30 }}
+            >
+              <Text style={{ color: "#FF9900", fontSize: 18 }}>Modifier Profil</Text>
+            </View>),
+            headerStyle: {
+              backgroundColor: "white",
+              borderBottomColor: "transparent",
+              shadowColor: "transparent"
+            },
+            headerTitleStyle: {
+              fontWeight: "bold",
+              fontSize: 20,
+            },
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10, }}>
+                <Icon name="arrow-back" size={24} color="#FF9900" />
+              </TouchableOpacity>
+            ),
+      
+      
+          });
+        }, [navigation]);
     const user = auth().currentUser;
     const db = getFirestore(app)
     const route = useRoute();
@@ -583,10 +611,10 @@ const EditProfile = () => {
                         <TouchableOpacity
                             onPress={handleInfo}
                             style={{
-                                width: 300,
-                                backgroundColor: "green",
-                                padding: 14,
-                                borderRadius: 7,
+                                width: "95%",
+                                backgroundColor: "#FF9900",
+                                padding: 10,
+                                borderRadius: 15,
                                 marginTop: 50,
                                 marginLeft: "auto",
                                 marginRight: "auto",

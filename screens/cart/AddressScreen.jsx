@@ -15,13 +15,13 @@ const AddressScreen = () => {
     const cartItems = route.params.cartItems;
     const grandTotal = route.params.grandTotal;
     const shippingCost = route.params.shippingCost;
-    console.log("parmas", cartItems, grandTotal, shippingCost);
+    //console.log("parmas", cartItems, grandTotal, shippingCost);
 
     const [switchValue, setSwitchValue] = useState(false);
     const [loading, setLoading] = useState(true);
     const currentUser = firebase.auth().currentUser;
     const currentUserUid = currentUser.uid;
-    console.log("currentUserUid", currentUserUid);
+    //console.log("currentUserUid", currentUserUid);
 
 
     //getUserData from fb

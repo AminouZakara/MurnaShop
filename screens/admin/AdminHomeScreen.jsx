@@ -3,6 +3,9 @@ import React, { useLayoutEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import Commandes from './commandes/Commandes';
+import ProduitsActifs from './produitsActifs/ProduitsActifs';
+import ProduitsVendus from './produitsVendus/ProduitsVendus';
 
 
 const AdminHomeScreen = () => {
@@ -15,7 +18,7 @@ const AdminHomeScreen = () => {
                     <View>
                         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Admin Home</Text >
                     </View>
-                    <MaterialIcons name="add-a-photo" size={24} color="black" onPress={()=> navigation.navigate('AddNewProduct')} />
+                    <MaterialIcons name="add-a-photo" size={24} color="black" onPress={() => navigation.navigate('AddNewProduct')} />
                     <TouchableOpacity onPress={() => console.log("Notification Clicked")
                     }>
                         <Ionicons name="notifications-sharp" size={24} color="black" />
@@ -30,13 +33,12 @@ const AdminHomeScreen = () => {
         });
     }, [navigation]);
     const adminscreens = [
-        { id: 1, name: "Active Products" },
-        { id: 2, name: "Sold Products" },
-        { id: 3, name: "Add Product" },
-        { id: 4, name: "Orders" },
+        { id: 1, name: "Commandes" },
+        { id: 2, name: "Produits Actifs" },
+        { id: 3, name: "Produits Vendus" },
     ];
 
-    const [selectedPanel, setSelectedPanel] = useState('Active Products')
+    const [selectedPanel, setSelectedPanel] = useState('Commandes')
     return (
         <View style={styles.container}>
             <ScrollView
@@ -66,6 +68,10 @@ const AdminHomeScreen = () => {
                             }}>{item.name}</Text>
                         </TouchableOpacity>))}
                 </ScrollView>
+
+                {selectedPanel === 'Commandes' && (<Commandes />)}
+                {selectedPanel === 'Produits Actifs' && (<ProduitsActifs />)}
+                {selectedPanel === 'Produits Vendus' && (<ProduitsVendus />)}
             </ScrollView>
 
             {/** if selectedPanel is add direct to add product screen */}

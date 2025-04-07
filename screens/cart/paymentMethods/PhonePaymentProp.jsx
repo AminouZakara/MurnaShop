@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, Switch, Alert, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
-const PhonePaymentProp = ({methodName, color}) => {
+const PhonePaymentProp = ({ methodName, color }) => {
+    const navigation = useNavigation();
 
     const [userInfo, setUserInfo] = useState({ name: "", surname: "", phone: "" });
     const [userInforError, setUserInforError] = useState({ name: "", surname: "", phone: "" });
@@ -24,15 +26,27 @@ const PhonePaymentProp = ({methodName, color}) => {
     };
 
     const handleCheckout = async () => {
-        
+
         if (saveInfo) {
             await AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
         }
-        Alert.alert("Success", "Order placed successfully!");
+        Alert.alert(
+            "Votre paiement a été effectué avec succès",
+            "Merci de votre confiance !",
+            [
+                {
+                    text: "OK",
+                    onPress: () => {
+                        navigation.navigate("MyOrder")
+                        console.log("Payment successful");
+                    },
+                },
+            ],
+        );
     };
     return (
         <ScrollView style={styles.container}>
-            <Text style={[styles.title, {color: color}]}>{methodName}</Text>
+            <Text style={[styles.title, { color: color }]}>{methodName}</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Nom"
@@ -79,9 +93,9 @@ const PhonePaymentProp = ({methodName, color}) => {
 export default PhonePaymentProp
 
 const styles = StyleSheet.create({
-    container: { padding: 8,elevation: 0.2, },
-    title: {fontSize: 24, fontWeight: "bold", marginBottom: 20, textDecorationLine: "underline", },
-    input: {marginBottom: 8, marginRight: 20, height: 40, borderColor: 'gray', borderBottomWidth: 0.2, color: "#000000", paddingHorizontal: 8, fontSize: 16, borderRadius: 5 },
+    container: { padding: 8, elevation: 0.2, },
+    title: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textDecorationLine: "underline", },
+    input: { marginBottom: 8, marginRight: 20, height: 40, borderColor: 'gray', borderBottomWidth: 0.2, color: "#000000", paddingHorizontal: 8, fontSize: 16, borderRadius: 5 },
     error: { color: "red", fontSize: 12, alignSelf: "center" },
     switchContainer: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
 });

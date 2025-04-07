@@ -1,12 +1,44 @@
 import { ActivityIndicator, Alert, Button, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { doc, addDoc, collection, getDocs, getFirestore, onSnapshot, query, where } from 'firebase/firestore'
 import { Picker } from '@react-native-picker/picker'
 import { db } from '../../../firebaseConfig'
+import Icon from "react-native-vector-icons/MaterialIcons";
+
 
 const AddLocations = () => {
     const navigation = useNavigation();
+    useLayoutEffect(() => {
+        // place the name of the App on right corner, the notification icon on left corner and the search bar bellow them
+        navigation.setOptions({
+          headerTitle: () => <View style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+            <Text style={{
+                color:"#FF9900",
+                fontSize: 20,
+                fontWeight: 'bold',
+                }}>Add Locations</Text>
+          </View>,
+          headerStyle: {
+            backgroundColor: "white",
+            borderBottomColor: "transparent",
+            shadowColor: "transparent",
+          },
+          headerTitleStyle: {
+            fontSize: 18,
+            fontWeight: "bold",
+          },
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10, }}>
+              <Icon name="arrow-back" size={30} color="#FF9900" />
+            </TouchableOpacity>
+          ),
+        });
+      }, [navigation]);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [regions, setRegions] = useState([]);
@@ -209,19 +241,15 @@ const AddLocations = () => {
     return (
         <KeyboardAvoidingView>
 
-            <ScrollView>
+            <ScrollView
+            contentContainerStyle={{
+                padding: 10,
+                justifyContent: 'center',
+                }}
 
-                <View style={{ backgroundColor: "green" }}>
-                    <View style={{ marginTop: 40, paddingHorizontal: 10, paddingVertical: 10, flexDirection: "row", justifyContent: "space-between" }}>
-                        <Text style={{ color: "white", fontSize: 24, fontWeight: "800" }}>Add New Address</Text>
-                        <TouchableOpacity
-                            onPress={() => navigation.goBack()}
-                            style={styles.button}>
-                            <Text style={{ color: "white", fontWeight: "500" }}>Add Post</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                <Text style={{ marginTop: 15, fontWeight: "400", fontSize: 20, textAlign: "center" }}>Create New Address</Text>
+            >
+
+                <Text style={{ marginVertical: 15, fontWeight: "400", fontSize: 20, textAlign: "center" }}>Create New Address</Text>
 
                 {/* add a form of 2 input fields and 1 button */}
                 <View style={styles.container}>
@@ -288,11 +316,13 @@ const AddLocations = () => {
                                     />
                                 </>
                             )}
-                       
 
 
-
-                            <Button title="Save" onPress={addLocation} style={styles.button} />
+                        <TouchableOpacity
+                            onPress={addLocation}
+                            style={styles.button}>
+                            <Text style={{fontSize:18, textAlign:"center", color: "white", fontWeight: "500" }}>Ajouter</Text>
+                        </TouchableOpacity>
 
                         </>
                     )}
@@ -305,4 +335,13 @@ const AddLocations = () => {
 
 export default AddLocations
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    button:{
+        marginTop:40,
+        alignSelf:"center",
+        width:"95%",
+        borderRadius:10,
+        backgroundColor: "#FF9900",
+        padding: 8,
+    }
+})

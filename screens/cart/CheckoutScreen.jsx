@@ -23,11 +23,11 @@ const CheckoutScreen = () => {
   const grandTotal = route.params.grandTotal;
   const shippingCost = route.params.shippingCost;
 
-  console.log("userData", userData);
-  console.log("cartItems", cartItems);
-  console.log("grandTotal", grandTotal);
-  console.log("shippingCost", shippingCost);
-  console.log("phoneNumber", userData.name);
+ // console.log("userData", userData);
+ // console.log("cartItems", cartItems);
+ // console.log("grandTotal", grandTotal);
+ // console.log("shippingCost", shippingCost);
+ // console.log("phoneNumber", userData.phoneNumber);
 
   const cartItemCount = useSelector((state) => state.cart.items.length);
 
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   //header
   addToCartButton: {
     alignItems: 'center',
-    position: 'absolute',
+    //position: 'absolute',
     alignSelf: "center",
 
   },
