@@ -31,6 +31,8 @@ import VotreModePaiement from './screens/profile/settings/VotreModePaiement';
 import LangueScreen from './screens/profile/settings/LangueScreen';
 import AproposCetteApplication from './screens/profile/settings/AproposCetteApplication';
 import ConditionsJuridiquesPolitiques from './screens/profile/settings/ConditionsJuridiquesPolitiques';
+import Register from './screens/registration/Register';
+import Login from './screens/registration/Login';
 
 const StackNavigator = () => {
     const Tab = createBottomTabNavigator();
@@ -98,6 +100,8 @@ const StackNavigator = () => {
         <NavigationContainer>
 
             <Stack.Navigator>
+                <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+                <Stack.Screen name='Register' component={Register} options={{ headerShown: false }} />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="Main" component={MyTabs} options={{ headerShown: false }} />
                 {/*------------ Home Screens --------*/}
@@ -115,19 +119,19 @@ const StackNavigator = () => {
                 />
 
                 {/* Profile Screens --------*/}
-               
+
                 {/* ------------ Support --------*/}
                 <Stack.Screen name='SupportScreen' component={SupportScreen} options={{ headerShown: true }} />
                 {/* ------------ Settings --------*/}
                 <Stack.Screen name='SettingsScreen' component={SettingsScreen} options={{ headerShown: true }} />
-                <Stack.Screen name='EditProfile' component={EditProfile} 
-                options={({ route }) => ({ title: "Modifier le profil", })}
+                <Stack.Screen name='EditProfile' component={EditProfile}
+                    options={({ route }) => ({ title: "Modifier le profil", })}
                 />
                 <Stack.Screen name='VotreModePaiement' component={VotreModePaiement} options={{ headerShown: true }} />
                 <Stack.Screen name='LangueScreen' component={LangueScreen} options={{ headerShown: true }} />
-                <Stack.Screen name='AproposCetteApplication' component={AproposCetteApplication} options={{ 
+                <Stack.Screen name='AproposCetteApplication' component={AproposCetteApplication} options={{
                     headerTitle: 'Apropos de cette application',
-                 }} />
+                }} />
                 <Stack.Screen name='ConditionsJuridiquesPolitiques' component={ConditionsJuridiquesPolitiques} options={{ headerShown: true }} />
 
                 {/* ------------ Order --------*/}
@@ -142,10 +146,10 @@ const StackNavigator = () => {
 
 
                 {/* ------------ Author Screens --------*/}
-                <Stack.Screen name='AuthorHomeScreen' component={AuthorHomeScreen} options={{ headerShown : true }} />
-                <Stack.Screen name='AddLocations' component={AddLocations} options={{ headerShown : true }} />
+                <Stack.Screen name='AuthorHomeScreen' component={AuthorHomeScreen} options={{ headerShown: true }} />
+                <Stack.Screen name='AddLocations' component={AddLocations} options={{ headerShown: true }} />
 
-                
+
 
 
             </Stack.Navigator>

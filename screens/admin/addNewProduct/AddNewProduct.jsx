@@ -5,9 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import { Formik } from 'formik';
 import myContext from '../../../context/data/myContext';
 import { Checkbox } from 'react-native-paper';
-import { collection, getDocs, query, Timestamp, where } from 'firebase/firestore';
-import { firebase } from '@react-native-firebase/auth';
-import { db } from '../../../firebaseConfig';
+import { Timestamp} from 'firebase/firestore';
 
 
 const AddNewProduct = () => {
@@ -52,35 +50,6 @@ const AddNewProduct = () => {
 
     } = context
 
-const user = firebase.auth().currentUser
-    const userId = user?.uid;
-    const userEmail = user?.email;
-console.log("Current User id:", userId);
-
-  // get User Data
-  useEffect(() => {
-    getUserData()
-}, [])
-const [userData, setUserData] = useState({});
-const getUserData = async () => {
-    setLoading(true)
-    try {
-        const q = query(collection(db, "murnaShoppingUsers"), where("userId", "==", userId));
-        const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map((doc) => doc.data());
-        setUserData(data[0]);
-        setLoading(false)
-    } catch (error) {
-        console.log(error);
-        setLoading(false)
-
-    }
-
-}
-
-console.log("User Dataaa:", userData);
-
-
     
   
 
@@ -104,9 +73,9 @@ console.log("User Dataaa:", userData);
                                 productFor: '',
                                 productType: '',
                                 quantity: '',
-                                userId: userId,
-                                userEmail: userEmail,
-                                userRole: userData?.role,
+                                //userId: userId,
+                                //userEmail: userEmail,
+                                //userRole: userData?.role,
                                 time: Timestamp.now(),
                                 date: new Date().toLocaleString(
                                     "en-US",

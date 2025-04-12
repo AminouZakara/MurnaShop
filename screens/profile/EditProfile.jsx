@@ -36,10 +36,9 @@ const EditProfile = () => {
       
           });
         }, [navigation]);
-    const user = auth().currentUser;
     const db = getFirestore(app)
     const route = useRoute();
-    const userData = route.params.userData;
+    const userData = route?.params?.userData;
     //reload the page when user comes back to this page
     useEffect(() => {
         navigation.addListener('focus', () => {
@@ -49,7 +48,7 @@ const EditProfile = () => {
         })
     }, [navigation])
 
-    console.log("User Data from Edit Profile", userData.name);
+    console.log("User Data from Edit Profile", userData?.name);
 
 
     {/* Used to get user data end */ }

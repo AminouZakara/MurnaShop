@@ -20,7 +20,7 @@ const ProfileScreen = () => {
             headerTitle: () => (<View
                 style={styles.addToCartButton}
             >
-                <Text style={{marginLeft:4, color: "#FF9900", fontSize: 18, textAlign: "center" }}>{user ? user.displayName : 'No User'}</Text>
+                <Text style={{marginLeft:4, color: "#FF9900", fontSize: 18, textAlign: "center" }}>Name Surname</Text>
             </View>),
             headerStyle: {
                 backgroundColor: "white",
@@ -34,7 +34,9 @@ const ProfileScreen = () => {
             headerLeft: () => (
                 <View style={{ marginLeft: 10, }}>
                     <Image
-                        source={{ uri: user.photoURL }}
+                        source={require("../../assets/images/logo.png")}
+
+                       // source={{ uri: user.photoURL }}
                         style={{
                             width: 40,
                             height: 40,
@@ -61,47 +63,9 @@ const ProfileScreen = () => {
         });
     }, [navigation]);
 
-    const user = auth().currentUser;
-    const currentUserUid = auth().currentUser.uid;
     const [loading, setLoading] = useState(true);
 
-    const [authUser, setAuthUser] = useState(null)
-    const logout = () => {
-        auth().signOut()
-            .then(() => {
-                setAuthUser(null)
-                console.log("User signed Out");
-                navigation.navigate("LoginScreen")
 
-            })
-            .catch(error => {
-                console.log(error);
-            });
-        console.log('Logout button pressed')
-    }
-    //getUserData from fb
-    useEffect(() => {
-        getUserData();
-    }, [])
-    const [userData, setUserData] = useState([]);
-    const getUserData = async () => {
-        setLoading(true)
-        try {
-            const userRef = doc(db, "murnaShoppingUsers", currentUserUid);
-            const docSnap = await getDoc(userRef);
-            if (docSnap.exists()) {
-                setUserData(docSnap.data());
-                setLoading(false)
-            }
-        } catch (error) {
-            console.log(error);
-            setLoading(false)
-        }
-    }
-    console.log("currentUserUid:", currentUserUid);
-    console.log("userData name:", userData?.name);
-    console.log("userData phoneNumber:", userData?.phoneNumber);
-    console.log("userData address:", userData?.address);
 
     return (
         <View style={styles.container}>

@@ -19,8 +19,6 @@ const AddressScreen = () => {
 
     const [switchValue, setSwitchValue] = useState(false);
     const [loading, setLoading] = useState(true);
-    const currentUser = firebase.auth().currentUser;
-    const currentUserUid = currentUser.uid;
     //console.log("currentUserUid", currentUserUid);
 
 
