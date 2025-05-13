@@ -7,6 +7,15 @@ export const loadCart = createAsyncThunk("cart/loadCart", async () => {
   return cartData ? JSON.parse(cartData) : [];
 });
 
+//
+export const addItemToCart = (item) => (dispatch, getState) => {
+  dispatch(cartSlice.actions.addToCart(item));
+  
+  const cartItems = getState().cart.items;
+  AsyncStorage.setItem("cart", JSON.stringify(Array.isArray(cartItems) ? cartItems : []));
+};
+
+
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
@@ -26,6 +35,9 @@ const cartSlice = createSlice({
       state.items = state.items.filter(item => item.id !== action.payload);
       AsyncStorage.setItem("cart", JSON.stringify(state.items));
     },
+    clearCart: (state) => {
+      state.items = [];
+    },
     updateQuantity: (state, action) => {
       const item = state.items.find(item => item.id === action.payload.id);
       if (item) {
@@ -39,10 +51,10 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(loadCart.fulfilled, (state, action) => {
-      state.items = action.payload;
+      state.items = Array.isArray(action.payload) ? action.payload : [];
     });
   }
 });
 
-export const { addToCart, removeFromCart, updateQuantity } = cartSlice.actions;
+export const { addToCart, removeFromCart, updateQuantity, clearCart} = cartSlice.actions;
 export default cartSlice.reducer;

@@ -4,8 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
+import { useSelector } from 'react-redux';
 
 const DifferentAddress = ({userId, cartItems, grandTotal, shippingCost }) => {
+    const { userData,error } = useSelector(state => state.user);
     const navigation = useNavigation()
     const [userInfo, setUserInfo] = useState({ name: "", surname: "", phone: "", address: "" });
 
@@ -172,15 +174,24 @@ const DifferentAddress = ({userId, cartItems, grandTotal, shippingCost }) => {
     //console.log("neighborhoodName:", neighborhoodName);
 
     // Validation function
-    const userData = {
-        userId: userId,
-        name: userInfo.name + " " + userInfo.surname,
-        phoneNumber: userInfo.phone,
-        region: regionName,
-        city: cityName,
-        town: townName,
-        neighborhood: neighborhoodName,
-    }
+
+      //get the cart items and add userinfo to it
+      const cartItemsWithUserInfo = cartItems.map((item) => {
+        return {
+            ...item,
+            userId: userData.userId,
+            userName: userInfo.name + " " + userInfo.surname,
+            userEmail: userData.email,
+            userPhoneNumber: userInfo.phone,
+            userRegion: regionName,
+            userCity: cityName,
+            userTown: townName,
+            userNeighborhood: neighborhoodName,
+            shippingCost: shippingCost,
+        };
+    });
+    console.log("cartItemsWithUserInfo", cartItemsWithUserInfo);
+
     const handleAddress = async () => {
         const nameRegex = /^[A-Za-z\s]{3,}$/; // At least 3 letters, no numbers or special characters
         const phoneRegex = /^[0-9]{8}$/; // Exactly 8 digits
@@ -228,7 +239,7 @@ const DifferentAddress = ({userId, cartItems, grandTotal, shippingCost }) => {
         } else {
             navigation.navigate("CheckoutScreen", {
                 userData: userData,
-                cartItems: cartItems,
+                cartItems: cartItemsWithUserInfo,
                 grandTotal: grandTotal,
                 shippingCost: shippingCost
             })
@@ -471,7 +482,7 @@ const DifferentAddress = ({userId, cartItems, grandTotal, shippingCost }) => {
                     marginTop: 40, justifyContent: "flex-start", alignItems: "center",
                 }} >
                 <View style={{ width: "100%", backgroundColor: "green", borderRadius: 10, padding: 10 }} >
-                    <Text style={{ color: "white", fontSize: 18, textAlign: "center" }} > Confirmer</Text>
+                    <Text style={{ color: "white", fontSize: 18, textAlign: "center" }} > Continuer</Text>
                 </View>
             </TouchableOpacity>
         </View>

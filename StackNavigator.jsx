@@ -33,6 +33,11 @@ import AproposCetteApplication from './screens/profile/settings/AproposCetteAppl
 import ConditionsJuridiquesPolitiques from './screens/profile/settings/ConditionsJuridiquesPolitiques';
 import Register from './screens/registration/Register';
 import Login from './screens/registration/Login';
+import OrderDetailsScreen from './screens/profile/order/OrderDetailsScreen';
+import ReviewProductScreen from './screens/profile/order/ReviewProductScreen';
+import CommandeDetails from './screens/admin/commandes/CommandeDetails';
+import CargaisonScreen from './screens/cargaison/CargaisonScreen';
+import CargaisonDetails from './screens/cargaison/CargaisonDetails';
 
 const StackNavigator = () => {
     const Tab = createBottomTabNavigator();
@@ -83,6 +88,7 @@ const StackNavigator = () => {
                     </View>
                 }} />
                 <Tab.Screen name="Profile" component={ProfileScreen} options={{
+                    headerShown: false,
                     tabBarLabel: 'Profile',
                     tabBarActiveTintColor: '#FF9900',
                     tabBarInactiveTintColor: 'gray',
@@ -134,20 +140,29 @@ const StackNavigator = () => {
                 }} />
                 <Stack.Screen name='ConditionsJuridiquesPolitiques' component={ConditionsJuridiquesPolitiques} options={{ headerShown: true }} />
 
-                {/* ------------ Order --------*/}
+                {/* ------------Client Order --------*/}
                 <Stack.Screen name='MyOrder' component={MyOrder} options={{ headerShown: true }} />
+                <Stack.Screen name='OrderDetailsScreen' component={OrderDetailsScreen} options={{ headerShown: true }} />
+                <Stack.Screen name='ReviewProductScreen' component={ReviewProductScreen} options={{ headerShown: true }} />
 
 
 
                 {/* ------------ Admin Screens --------*/}
                 <Stack.Screen name='AdminHomeScreen' component={AdminHomeScreen} options={{ headerShown: true }} />
                 <Stack.Screen name='AddNewProduct' component={AddNewProduct} options={{ headerShown: true }} />
-                {/* <Stack.Screen name='OrderDetails' component={OrderDetails} options={{ headerShown: true }} /> -*/}
+                {/* ------------ Commandes --------*/}
+                <Stack.Screen name='CommandeDetails' component={CommandeDetails} options={{ headerShown: true }} /> 
 
 
                 {/* ------------ Author Screens --------*/}
                 <Stack.Screen name='AuthorHomeScreen' component={AuthorHomeScreen} options={{ headerShown: true }} />
                 <Stack.Screen name='AddLocations' component={AddLocations} options={{ headerShown: true }} />
+
+
+
+                {/* ------------ Cargaison Screens --------*/}
+                <Stack.Screen name='CargaisonScreen' component={CargaisonScreen} options={{ headerShown: false }} />
+                <Stack.Screen name='CargaisonDetails' component={CargaisonDetails} options={{ headerShown: true }} />
 
 
 

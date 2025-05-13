@@ -3,31 +3,34 @@ import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
 import auth, { firebase } from '@react-native-firebase/auth'
-import {getFirestore, doc, getDoc, setDoc, updateDoc} from 'firebase/firestore'
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { app } from './firebaseConfig'
-import {NEXT_PUBLIC_FIREBASE_WEB_CLIENT_ID} from './context/data/myContext'
+import { FIREBASE_WEB_CLIENT_ID } from '@env';
 
 
 const LoginScreen = () => {
     const navigation = useNavigation()
     const db = getFirestore(app)
     GoogleSignin.configure({
-        webClientId: "1082330876834-ejjoev3pegtcp9s10ug5j0l76ok2lsk9.apps.googleusercontent.com",
+        webClientId: FIREBASE_WEB_CLIENT_ID,
+        offlineAccess: true,
+        forceCodeForRefreshToken: true,
     });
 
+    console.log("webClientId", FIREBASE_WEB_CLIENT_ID);
     //autosignin
     const [authUser, setAuthUser] = useState(null)
-    useEffect(()=>{
-        const subscriber = auth().onAuthStateChanged((user)=>{
-            if(user){
+    useEffect(() => {
+        const subscriber = auth().onAuthStateChanged((user) => {
+            if (user) {
                 setAuthUser(user)
                 navigation.navigate("Main")
-            }else{
+            } else {
                 setAuthUser(null)
             }
         });
         return subscriber
-    },[])
+    }, [])
 
 
     //states
@@ -53,7 +56,7 @@ const LoginScreen = () => {
                     userId: user.uid,
                     city: "",
                     address: "",
-                    storeAddress:"",
+                    storeAddress: "",
                     phoneNumber: "",
                     role: 'user',
                     sellerOf: "",
@@ -76,6 +79,7 @@ const LoginScreen = () => {
 
         }
     }
+    
     return (
         <View style={styles.container}>
             <View>

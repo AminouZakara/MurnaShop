@@ -1,12 +1,11 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import Icon from "react-native-vector-icons/MaterialIcons";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import auth from '@react-native-firebase/auth'
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../../firebaseConfig';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useSelector } from 'react-redux';
 
 
 
@@ -39,19 +38,45 @@ const SettingsScreen = () => {
         });
     }, [navigation]);
 
-    const [loading, setLoading] = useState(true);
+    // To fetch user data
+    const { userData, loading, error } = useSelector(state => state.user);
 
+
+
+    //logout and avoid the user to come back to the app
+
+    //logout and avoid the user to come back to the app
     const logout = () => {
-        navigation.navigate("Login")
-
-        console.log('Logout button pressed')
+        //ask the user if he really wanna logout in french
+        Alert.alert(
+            'Déconnexion',
+            'Voulez-vous vraiment vous déconnecter ?',
+            [
+                {
+                    text: 'Annuler',
+                    onPress: () => console.log('Annuler Pressé'),
+                    style: 'cancel'
+                },
+                {
+                    text: 'OK',
+                    onPress: () => {
+                        auth().signOut().then(() => {
+                            console.log('Déconnecté')
+                            navigation.navigate('Login')
+                        })
+                    }
+                }
+            ]
+        );
     }
-  
+
     return (
         <View>
 
             <TouchableOpacity
-                onPress={() => navigation.navigate("EditProfile")}
+                onPress={() => navigation.navigate("EditProfile", {
+                    userData: userData,
+                })}
                 style={styles.textContainer}>
                 <Text style={styles.textTitle}> Modifier le profil </Text>
                 <Ionicons name="chevron-forward" size={24} color="#FF9900" />

@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Button, FlatList, Image, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Button, FlatList, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { loadCart, removeFromCart, updateQuantity } from "../../redux/cartSlice";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useNavigation } from "@react-navigation/native";
+import { validateCartSmart } from "../../components/cart/ValidateCartSmart";
 
 const CartScreen = () => {
   const navigation = useNavigation();
-  const cartItems = useSelector((state) => state.cart.items);
-  //console.log("cart items", cartItems.length);
+  const cartItems = useSelector((state) => state.cart.items || []);
+  console.log("cart items", cartItems);
   const dispatch = useDispatch();
   //load cart
   useEffect(() => {
     dispatch(loadCart());
   }, [dispatch]);
- 
+
   const [totalAmount, setTotalAmount] = useState(0);
   useEffect(() => {
     let temp = 0;
@@ -54,15 +55,53 @@ const CartScreen = () => {
     dispatch(updateQuantity(item, quantity));
     // console.log("quantity updated");
   };
+
+  //console.log("Calling validateCartSmart with:", cartItems);
+  //console.log("Is array:", Array.isArray(cartItems));
   // checkout
-  const handleCheckout = () => {
-    // console.log("checkout");
-    // console.log("cartItems:", cartItems);
-    // console.log("totalAmount:", totalAmount);
-    // console.log("shippingCost:", shippingCost);
-    // console.log("grandTotal:", grandTotal);
-    // console.log("shippingCost:", shippingCost);
-  }
+  const [loading, setLoading] = useState(false)
+  const handleSmartCheckout = async (cartItems) => {
+    setLoading(true);
+    try {
+      const { issues, updatedCart } = await validateCartSmart(cartItems);
+
+      if (issues.length > 0) {
+        const issueMessages = issues.map(issue => `• ${issue.message}`).join('\n');
+
+        Alert.alert(
+          'Cart Updated',
+          `${issueMessages}\n\nWould you like to proceed with the updated cart?`,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Proceed',
+              onPress: () => {
+                navigation.navigate('AddressScreen', {
+                  cartItems: updatedCart,
+                  grandTotal,
+                  shippingCost
+                });
+              },
+            },
+          ]
+        );
+      } else {
+        navigation.navigate('AddressScreen', {
+          cartItems: updatedCart,
+          grandTotal,
+          shippingCost
+        });
+      }
+    } catch (error) {
+      console.log("Error handling Smart Checkout", error);
+      Alert.alert("Checkout Error", "Something went wrong. Please try again.");
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <View style={{ width: '100%', height: '100%', backgroundColor: '#f0f0f0' }}>
       {
@@ -146,7 +185,7 @@ const CartScreen = () => {
                 <Text style={{}}>{cartItems.length != 0 && shippingCost == 0 ? <Text style={{ color: "green", fontWeight: "bold" }}>gratuite</Text> : <Text>{shippingCost} <Text style={{ color: "grey", fontSize: 10 }}> FCFA</Text></Text>}</Text>
               </View>
 
-              <View style={{marginBottom: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+              <View style={{ marginBottom: 10, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
 
                 <View style={{ flexDirection: "column" }}>
                   <Text style={{ color: "grey", fontSize: 14, fontWeight: "bold", }}>Total a payé</Text>
@@ -155,21 +194,20 @@ const CartScreen = () => {
 
 
                 <TouchableOpacity
+                  disabled={loading}
                   style={{
                     width: "40%",
                     height: 40,
-                    backgroundColor: "#FF9900",
+                    backgroundColor: loading ? "#cccccc" : "#FF9900",
                     justifyContent: "center",
                     alignItems: "center",
                     borderRadius: 20
                   }}
-                  onPress={() => navigation.navigate("AddressScreen", {
-                    cartItems: cartItems,
-                    grandTotal: grandTotal,
-                    shippingCost: shippingCost
-                  })}>
-
-                  <Text style={{ color: "white", textAlign: "center", fontWeight: "bold", fontSize: 16 }}>Achever l'achat</Text>
+                  onPress={() => handleSmartCheckout(cartItems)} // Call explicitly
+                >
+                  <Text style={{ color: "white", textAlign: "center", fontWeight: "bold", fontSize: 16 }}>
+                    {loading ? "Chargement..." : "Achever l'achat"}
+                  </Text>
                 </TouchableOpacity>
               </View>
 

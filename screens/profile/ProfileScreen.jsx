@@ -1,118 +1,157 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
-import auth from '@react-native-firebase/auth'
 import { useNavigation } from '@react-navigation/native'
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
 import Icon from "react-native-vector-icons/MaterialIcons";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUserData } from '../../redux/userSlice';
+import auth from '@react-native-firebase/auth'
+
 
 
 
 
 const ProfileScreen = () => {
+    const dispatch = useDispatch();
     const navigation = useNavigation()
-    useLayoutEffect(() => {
-        // place the name of the App on right corner, the notification icon on left corner and the search bar bellow them
-        navigation.setOptions({
-            headerTitle: () => (<View
-                style={styles.addToCartButton}
-            >
-                <Text style={{marginLeft:4, color: "#FF9900", fontSize: 18, textAlign: "center" }}>Name Surname</Text>
-            </View>),
-            headerStyle: {
-                backgroundColor: "white",
-                borderBottomColor: "transparent",
-                shadowColor: "transparent"
-            },
-            headerTitleStyle: {
-                fontWeight: "bold",
-                fontSize: 18,
-            },
-            headerLeft: () => (
-                <View style={{ marginLeft: 10, }}>
-                    <Image
-                        source={require("../../assets/images/logo.png")}
+    // To fetch user data
+    const { userData, loading, error } = useSelector(state => state.user);
 
-                       // source={{ uri: user.photoURL }}
-                        style={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 50
-                        }}
+    useEffect(() => {
+        dispatch(getUserData());
+    }, [dispatch]);
 
-                    />
-                </View>
-            ),
-            headerRight: () => (
-                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginRight: 10 }}>
-                    <TouchableOpacity onPress={() => navigation.navigate('SupportScreen')}
-                        style={{ marginRight: 10, }}>
-                        <MaterialIcons name="support-agent" size={30} color="#FF9900" />
-                    </TouchableOpacity>
+    const currentUser = auth().currentUser;
+    const userId = currentUser.uid;
 
-                    <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')}>
-                        <MaterialIcons name="settings" size={25} color="grey" />
-                    </TouchableOpacity>
-
-                </View>
-            )
-
-        });
-    }, [navigation]);
-
-    const [loading, setLoading] = useState(true);
+    console.log("current user id", userId);
 
 
+
+    //getUserData from fb
+    //console.log("user data store name", userData.storeName);
+    //console.log("user storeCity", userData.storeCity);
+    // console.log("User data from redux:", userData);
+    //console.log("error getting user data from redux:", error);
+    //console.log("current USer Uid:", auth.currentUser.uid);
+
+    {/*   useEffect(() => {
+        axios.get('http://192.168.158.131:3000/api/users')
+            .then(response => {
+                setUsers(response.data)
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }, []);
+    console.log("users:", users);*/}
 
     return (
         <View style={styles.container}>
-            <View style={styles.subContainer}>
-                <TouchableOpacity
-                    onPress={() => navigation.navigate("MyOrder")}
-                    style={[styles.textContainer, { marginBottom: 28, }]}>
-                    <Text style={styles.textTitle}> Mes commandes </Text>
-                    <Ionicons name="chevron-forward" size={24} color="#FF9900" />
-                </TouchableOpacity>
+            {
+                loading ? (
+                    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                        <Text style={{ fontSize: 18, color: "#FF9900" }}>Loading...</Text>
+                    </View>
+                ) : (
+                    <View style={styles.subContainer}>
+                        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 10 }}>
+                            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                <Image
+                                    source={require("../../assets/images/logo.png")}
+                                    // source={{ uri: user.photoURL }}
+                                    style={{
+                                        width: 60,
+                                        height: 60,
+                                        borderRadius: 50
+                                    }}
+                                />
+                                <View style={{ marginLeft: 10 }}>
+                                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>{userData?.name}</Text>
+                                    <Text style={{ fontSize: 14, color: "#FF9900" }}>{userData?.storeName}</Text>
+                                </View>
+                            </View>
 
-                <TouchableOpacity
-                    onPress={() => navigation.navigate("AdminHomeScreen")}
-                    style={{
-                        marginTop: 100,
-                        backgroundColor: 'green',
-                        padding: 10,
-                        borderRadius: 10,
-                        margin: 10
-                    }}
+                            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginRight: 10 }}>
+                                <TouchableOpacity onPress={() => navigation.navigate('SupportScreen')}
+                                    style={{ marginRight: 10, }}>
+                                    <MaterialIcons name="support-agent" size={30} color="#FF9900" />
+                                </TouchableOpacity>
 
-                >
-                    <Text style={{
-                        color: 'white',
-                        fontSize: 18,
-                        textAlign: "center"
-                    }}>Admin Panel</Text>
-                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')}>
+                                    <MaterialIcons name="settings" size={25} color="grey" />
+                                </TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={() => navigation.navigate("AuthorHomeScreen")}
-                    style={{
-                        marginTop: 100,
-                        backgroundColor: 'darkgreen',
-                        padding: 10,
-                        borderRadius: 10,
-                        margin: 10
-                    }}
+                            </View>
+                        </View>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate("MyOrder")}
+                            style={[styles.textContainer, { marginBottom: 28, }]}>
+                            <Text style={styles.textTitle}> Mes commandes </Text>
+                            <Ionicons name="chevron-forward" size={24} color="#FF9900" />
+                        </TouchableOpacity>
 
-                >
-                    <Text style={{
-                        color: 'white',
-                        fontSize: 18,
-                        textAlign: "center"
-                    }}>Author Panel</Text>
-                </TouchableOpacity>
-            </View>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate("AdminHomeScreen")}
+                            style={{
+                                marginTop: 100,
+                                backgroundColor: 'green',
+                                padding: 10,
+                                borderRadius: 10,
+                                margin: 10
+                            }}
+
+                        >
+                            <Text style={{
+                                color: 'white',
+                                fontSize: 18,
+                                textAlign: "center"
+                            }}>Admin Panel</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate("AuthorHomeScreen")}
+                            style={{
+                                marginTop: 100,
+                                backgroundColor: 'darkgreen',
+                                padding: 10,
+                                borderRadius: 10,
+                                margin: 10
+                            }}
+
+                        >
+                            <Text style={{
+                                color: 'white',
+                                fontSize: 18,
+                                textAlign: "center"
+                            }}>Author Panel</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate("CargaisonScreen")}
+                            style={{
+                                marginTop: 100,
+                                backgroundColor: 'darkgreen',
+                                padding: 10,
+                                borderRadius: 10,
+                                margin: 10
+                            }}
+
+                        >
+                            <Text style={{
+                                color: 'white',
+                                fontSize: 18,
+                                textAlign: "center"
+                            }}>Cargaison</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                )
+            }
 
         </View>
     )
@@ -126,6 +165,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10
     },
     subContainer: {
+        marginTop: 30,
         justifyContent: 'center',
     },
     textContainer: { marginBottom: 2, flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "white", padding: 8 },

@@ -1,8 +1,13 @@
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { FlatList, Image, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ProductsCard from '../productCard/ProductsCard'
+import { useDispatch, useSelector } from 'react-redux';
 
 
 const ProductList = ({ productLists, productFor, category }) => {
+
+  const { items, status } = useSelector((state) => state.products);
+
+ 
 
   return (
     <View
@@ -16,11 +21,21 @@ const ProductList = ({ productLists, productFor, category }) => {
         numColumns={2}
         scrollEnabled={false}
         showsVerticalScrollIndicator={false}
+
         renderItem={({ item }) => (
           <ProductsCard
             product={item}
           />
         )}
+        // optional: show something when list is empty
+        ListEmptyComponent={
+          status === 'loading' ? null : (
+            <View style={{ padding: 16 }}>
+              <Text>No products available.</Text>
+            </View>
+          )
+        }
+
       />
     </View>
   )

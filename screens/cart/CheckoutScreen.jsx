@@ -23,11 +23,13 @@ const CheckoutScreen = () => {
   const grandTotal = route.params.grandTotal;
   const shippingCost = route.params.shippingCost;
 
- // console.log("userData", userData);
- // console.log("cartItems", cartItems);
- // console.log("grandTotal", grandTotal);
- // console.log("shippingCost", shippingCost);
- // console.log("phoneNumber", userData.phoneNumber);
+  // console.log("userData", userData);
+  // console.log("cartItems", cartItems);
+  // console.log("grandTotal", grandTotal);
+  // console.log("shippingCost", shippingCost);
+  // console.log("phoneNumber", userData.phoneNumber);
+  // console.log("cartItems", cartItems);
+
 
   const cartItemCount = useSelector((state) => state.cart.items.length);
 
@@ -63,17 +65,23 @@ const CheckoutScreen = () => {
   // about Payments
   const [selectedPayment, setSelectedPayment] = useState('card');
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    >
       {/* Address Container */}
       <View style={styles.addressContainer}>
         <Ionicons name="location-outline" size={24} color="black" />
-        <View style={{paddingHorizontal: 4 }}>
+        <View style={{ paddingHorizontal: 4 }}>
           <Text style={{ color: "grey", fontSize: 16, }}>Récepteur: <Text style={{ color: "black", fontWeight: "500", fontSize: 16 }}>{userData?.name}</Text> </Text>
-          <Text style={{color: "grey", fontSize: 16, }}>Numéro de téléphone: <Text style={{ color: "black", fontWeight: "400", fontSize: 16 }}>{userData?.phoneNumber}</Text> </Text>
-          <View style={{ marginTop:8}}>
-            <Text style={{color: "grey", fontSize: 16,fontWeight: "400",fontStyle: "italic" }}>Addresse: </Text>
-            <Text style={{marginTop: 4, color: "black", fontWeight: "600", fontSize: 16,fontStyle: "italic" }}>{userData?.region}, {userData?.city},</Text>
-            <Text style={{  fontSize: 16, fontStyle: "italic" }}>{userData?.town}, {userData?.neighborhood} </Text>
+          <Text style={{ color: "grey", fontSize: 16, }}>Numéro de téléphone: <Text style={{ color: "black", fontWeight: "400", fontSize: 16 }}>{userData?.phoneNumber}</Text> </Text>
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ color: "grey", fontSize: 16, fontWeight: "400", fontStyle: "italic" }}>Addresse: </Text>
+            <Text style={{ marginTop: 4, color: "black", fontWeight: "600", fontSize: 16, fontStyle: "italic" }}>{userData?.region}, {userData?.city},</Text>
+            <Text style={{ fontSize: 16, fontStyle: "italic" }}>{userData?.town}, {userData?.neighborhood} </Text>
           </View>
         </View>
       </View>
@@ -85,7 +93,13 @@ const CheckoutScreen = () => {
           showsHorizontalScrollIndicator={false}>
           {cartItems.map((item, index) => (
             <View key={index} style={styles.item}>
-              <Image source={{ uri: item.images[0] }} style={{ width: 80, height: 80 }} />
+              {item.images && item.images.length > 0 ? (
+                <Image source={{ uri: item.images[0] }} style={{ width: 80, height: 80 }} />
+              ) : (
+                <View style={{ width: 80, height: 80, backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center' }}>
+                  <Text>No Image</Text>
+                </View>
+              )}
               <View style={styles.itemDetails}>
                 <Text> {item.price} <Text style={{ color: "grey", fontSize: 10 }}>FCFA</Text></Text>
               </View>
@@ -193,11 +207,11 @@ const CheckoutScreen = () => {
 
         </View>
         {/* -----Phone Payment -------- */}
-        {selectedPayment === 'card' && <CardPayment />}
-        {selectedPayment === 'Alizza' && <Al_izzaPayment />}
-        {selectedPayment === 'AmanaTa' && <AmanaTa />}
-        {selectedPayment === 'MyNita' && <MyNitaPayment />}
-        {selectedPayment === 'MoovFooz' && <MoovFoozPayment />}
+        {selectedPayment === 'card' && <CardPayment userData={userData} cartItems={cartItems} grandTotal={grandTotal} shippingCost={shippingCost} />}
+        {selectedPayment === 'Alizza' && <Al_izzaPayment userData={userData} cartItems={cartItems} grandTotal={grandTotal} shippingCost={shippingCost} />}
+        {selectedPayment === 'AmanaTa' && <AmanaTa userData={userData} cartItems={cartItems} grandTotal={grandTotal} shippingCost={shippingCost} />}
+        {selectedPayment === 'MyNita' && <MyNitaPayment userData={userData} cartItems={cartItems} grandTotal={grandTotal} shippingCost={shippingCost} />}
+        {selectedPayment === 'MoovFooz' && <MoovFoozPayment userData={userData} cartItems={cartItems} grandTotal={grandTotal} shippingCost={shippingCost} />}
 
         {/* <StripeApp confirmBooking={confirmBooking} userData={userData} userId={userId} /> */}
 
@@ -231,8 +245,9 @@ const styles = StyleSheet.create({
   },
   //Body
   container: {
-    margin: 4,
+    flex: 1,
     backgroundColor: '#fff',
+    paddingTop: 10,
   },
   //address
   addressContainer: {

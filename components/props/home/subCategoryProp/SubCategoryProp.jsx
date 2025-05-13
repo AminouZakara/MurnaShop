@@ -1,41 +1,16 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ProductList from '../productLists/ProductList'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from '../../../../firebaseConfig'
+import { useSelector } from 'react-redux'
 
 const SubCategoryProp = ({ category, productFor, subCategory, selectedCategory, setSelectedCategory }) => {
-    const [calledProducts, setCalledProducts] = useState([]);
-    const [loading, setLoading] = useState(true)
-
+    const products = useSelector(state => state.products.items);
 
     // get prodcutFor from the database
-    useEffect(() => {
-        getCalledProducts();
-    }, [])
-    const getCalledProducts = async () => {
-        setLoading(true)
-        try {
-            const q = query(collection(db, "murnaShoppingPosts"), where("category", "==", category));
-            const querySnapshot = await getDocs(q);
-            const data = querySnapshot.docs.map((doc) => {
-                return {
-                    id: doc.id,
-                    ...doc.data(),
-                };
-            });
-            setCalledProducts(data);
-            setLoading(false)
-        } catch (error) {
-            console.log(error);
-            setLoading(false)
-        }
-    }
-    console.log("products:", calledProducts);
+    const calledProducts = products.filter((prod)=> prod.category == category)
 
-   
-
-
+    console.log("ProdctFor", calledProducts.length);
+    console.log("category", category);
 
     const [filteredProducts, setFilteredProducts] = useState([]);
     useEffect(
@@ -47,11 +22,9 @@ const SubCategoryProp = ({ category, productFor, subCategory, selectedCategory, 
                     const filteredProducts = calledProducts.filter((product) => product.productType == selectedCategory);
                     setFilteredProducts(filteredProducts);
                 }
-                
-
             }
         },
-        [calledProducts, productFor, subCategory]
+        [productFor, subCategory]
     );
 
     //console.log("filteredProducts:", filteredProducts);
@@ -92,15 +65,7 @@ const SubCategoryProp = ({ category, productFor, subCategory, selectedCategory, 
             <Text>productFor: {productFor} </Text>
             <Text>selectedCategory: {selectedCategory} </Text>
             <ProductList productFor={productFor} subCategory={selectedCategory} productLists={filteredProducts} />
-
-
-
-
-
-
-
         </View>
-
     )
 }
 

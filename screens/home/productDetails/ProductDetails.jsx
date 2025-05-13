@@ -1,23 +1,29 @@
-import { ActivityIndicator, Dimensions, Image, Modal, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Dimensions, Image, Modal, ScrollView, StyleSheet, Text, ToastAndroid, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { db } from '../../../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { firebase } from '@react-native-firebase/auth';
-import { FlatList } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Icon from "react-native-vector-icons/MaterialIcons";
 import ProductGalleri from './ProductGalleri';
 import { addToCart } from '../../../redux/cartSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ProductDetailHeader from '../../../components/productDetail/ProductDetailHeader';
 import SimilarProducts from './SimilarProducts';
+import { getUserData } from '../../../redux/userSlice';
 
 
 
 const { width, height } = Dimensions.get("window"); // Get screen width and height
 
 const ProductDetails = () => {
+  const { userData, loading, error } = useSelector(state => state.user);
+
+  // To fetch user data
+  useEffect(() => {
+    dispatch(getUserData());
+  }, [dispatch]);
+  //console.log("User data from prddtails:", userData);
   const navigation = useNavigation()
   useLayoutEffect(() => {
     // place the name of the App on right corner, the notification icon on left corner and the search bar bellow them
@@ -41,14 +47,15 @@ const ProductDetails = () => {
   }, [navigation, product]);
   const route = useRoute();
   const product = route.params.product;
-  const user = firebase.auth().currentUser
+  const routeId = route.params.id;
   const [isLoading, setIsLoading] = useState(false)
   const [fbProduct, setFbProduct] = useState([]);
   useEffect(() => {
     const fetchProduct = async () => {
       setIsLoading(true)
+      setFbProduct([])
       try {
-        const docRef = doc(db, "murnaShoppingPosts", product.id);
+        const docRef = doc(db, "murnaShoppingPosts", routeId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setFbProduct({
@@ -56,7 +63,14 @@ const ProductDetails = () => {
             ...docSnap.data(),
           });
           setIsLoading(false)
+        } else {
+          Alert.alert(
+            "Produit non trouvé",
+            "Le produit que vous chercher n'existe plus"
+          )
         }
+        setIsLoading(false)
+
       } catch (error) {
         console.log(error)
         setIsLoading(false)
@@ -65,11 +79,11 @@ const ProductDetails = () => {
     }
     fetchProduct();
   },
-    [product.id,]);
-
+    [routeId]);
   // console.log("product id:", product.id);
   //console.log("fbProduct id:", fbProduct.id);
-  const images = product.images
+ // console.log("fbProduct:", fbProduct);
+  const images = fbProduct.images
 
   //   // HandlePress
   const [rating, setRating] = useState(0);
@@ -90,7 +104,57 @@ const ProductDetails = () => {
 
   const dispatch = useDispatch();
 
-  // add To Cart
+  // orderDetails
+  const orderDetails = {
+    id: fbProduct.id,
+    title: fbProduct.title,
+    price: fbProduct.price,
+    quantity: 1,
+    color: chosenColor,
+    size: chosenSize,
+    images: fbProduct?.images,
+    category: fbProduct?.category,
+    productType: fbProduct?.productType,
+    userId: userData?.userId,
+    userName: userData?.name,
+    userEmail: userData?.email,
+    userPhoneNumber: userData?.phoneNumber,
+    userRegion: userData?.region,
+    userCity: userData?.city,
+    userTown: userData?.town,
+    userNeighborhood: userData?.neighborhood,
+    storeName: fbProduct?.storeName,
+    storeId: fbProduct?.storeId,
+  }
+  //console.log("orderDetails:", orderDetails);
+  //console.log("fbProduct color:", fbProduct.colors);
+  //console.log("fbProduct size:", fbProduct.sizes);
+
+
+  const handleAddToCart = () => {
+    // Check if the product has colors and sizes
+    if (fbProduct.sizes.length > 0 && !chosenSize) {
+      Alert.alert("Erreur", "Veuillez choisir une taille");
+      return;
+    }
+    if (fbProduct.colors.length > 0 && !chosenColor) {
+      Alert.alert("Erreur", "Veuillez choisir une couleur");
+      return;
+    }
+
+    dispatch(addToCart(orderDetails));
+    Alert.alert("Produit ajouté au panier", "Le produit a été ajouté à votre panier avec succès", [
+      {
+        text: "OK",
+        onPress: () => {
+          navigation.navigate("Main", { screen: "Cart" });
+        },
+      },
+    ]);
+  }
+  
+
+
   const aasddToCart = async () => {
     console.log("product id", product.id);
     console.log("product Title", product.title);
@@ -99,7 +163,7 @@ const ProductDetails = () => {
     console.log("Chozen size", chosenSize);
   }
 
-  console.log("product Category", product.category);
+  //console.log("product Category", product.category);
   console.log("product productType", product.productType);
   console.log("product Title", product.title);
 
@@ -132,10 +196,10 @@ const ProductDetails = () => {
                   )}
                 />
                 <View style={styles.itemDetail}>
-                  <Text style={styles.itemTitle}>{product.title}</Text>
+                  <Text style={styles.itemTitle}>{fbProduct.title}</Text>
 
                   <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 6 }}>
-                    <Text style={styles.itemPrice}>{product.price} <Text style={{ color: "grey", fontSize: 10 }}>FCFA</Text></Text>
+                    <Text style={styles.itemPrice}>{fbProduct.price} <Text style={{ color: "grey", fontSize: 10 }}>FCFA</Text></Text>
 
                     <View style={styles.starsContainer}>
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -161,7 +225,7 @@ const ProductDetails = () => {
                       showsHorizontalScrollIndicator={false}
                       style={styles.sizes}>
                       {/** Sizes */}
-                      {product.sizes.map((size) => (
+                      {fbProduct.sizes.map((size) => (
                         <TouchableOpacity
                           key={size}
                           onPress={() => setChosenSize(size)}
@@ -189,7 +253,7 @@ const ProductDetails = () => {
                       showsHorizontalScrollIndicator={false}
                       style={styles.colors}>
                       {/** colors */}
-                      {product.colors.map((color) => (
+                      {fbProduct.colors.map((color) => (
                         <TouchableOpacity
                           key={color}
                           onPress={() => setChosenColor(color)}
@@ -227,7 +291,7 @@ const ProductDetails = () => {
                 {/** Similar products */}
                 <View style={styles.similarProductsContainer}>
                   <Text> Produits similaires</Text>
-                  <SimilarProducts productType={product.productType} id={product.id} />
+                  <SimilarProducts productType={fbProduct.productType} id={fbProduct.id} />
                 </View>
 
 
@@ -235,7 +299,7 @@ const ProductDetails = () => {
 
               <TouchableOpacity
                 style={styles.addToCartButton}
-                onPress={() => dispatch(addToCart(product))}
+                onPress={handleAddToCart}
               >
                 <Text style={styles.addToCartButtonText}>Ajouter au panier</Text>
               </TouchableOpacity>
@@ -337,6 +401,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addToCartButton: {
+    marginBottom: 20,
     width: "90%",
     marginVertical: 10,
     backgroundColor: '#FF9900',

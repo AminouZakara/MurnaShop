@@ -3,16 +3,19 @@ import React, { useState } from 'react'
 import MyContext from './myContext'
 import * as ImagePicker from 'expo-image-picker';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { addDoc, collection, getDocs, getFirestore, onSnapshot, query, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, getDocs, getFirestore, onSnapshot, query, where } from 'firebase/firestore';
 import { app, db } from '../../firebaseConfig';
-import { firebase } from '@react-native-firebase/auth';
+import auth, { firebase } from '@react-native-firebase/auth';
 import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllProducts } from '../../redux/productsSlice';
+import axios from 'axios';
 
 
 
 const myState = (props) => {
-  
-  
+
+
   // states -> 
   // Form data Categories and their states -> 
   // Set data fuctions and their states
@@ -337,36 +340,103 @@ const myState = (props) => {
 
   {/* --------Start of Set Form data fuctions and their states ----------------- Set data fuctions and their states ---------------*/ }
   const [submitting, setSubmitting] = useState(false);
+
+  const [selectedImages, setSelectedImages] = useState([]);
+
+  const pickImages = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Permission denied', 'You need to allow access to the gallery.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      quality: 1,
+      allowsMultipleSelection: true,
+    });
+
+    if (!result.canceled) {
+      setSelectedImages(result.assets.map(asset => asset.uri));
+    }
+  };
+
   const uploadImagesAndSaveData = async (images, formData) => {
     setSubmitting(true);
     try {
-      const storage = getStorage(app);
+      if (selectedImages.length === 0){
+        Alert.alert(
+          'Image de Produit',
+          "SVP choisiz au moins un image",
+        [{ text: "OK" }]
+        )
+        return;
 
-      const uploadPromises = images.map(async (image) => {
-        const response = await fetch(image.uri);
-        const blob = await response.blob();
+      }
 
-        const filename = `murnaShoppingPostsImages/${Date.now()}_${Math.random().toString(36).substring(7)}`;
-        const storageRef = ref(storage, filename);
+      const uploadedUrlsArray = [];
 
-        await uploadBytes(storageRef, blob);
-        return getDownloadURL(storageRef);
-      });
+      for (let uri of selectedImages) {
+        const fileName = uri.split('/').pop();
+        const fileType = fileName?.split('.').pop();
+        const formData = new FormData();
+        formData.append('file', {
+          uri,
+          name: fileName,
+          type: `image/${fileType}`,
+        });
 
-      // Wait for all images to upload and retrieve URLs
-      const imageUrls = await Promise.all(uploadPromises);
+        formData.append('upload_preset', process.env.UPLOAD_PRESET);
+        formData.append('cloud_name', process.env.CLOUD_NAME);
 
+        try {
+          const res = await axios.post(
+            `https://api.cloudinary.com/v1_1/${process.env.CLOUD_NAME}/image/upload`,
+            formData,
+            {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            }
+          );
+          uploadedUrlsArray.push(res.data.secure_url);
+        } catch (error) {
+          console.error(error);
+          Alert.alert('Upload failed', 'Something went wrong during image upload.');
+        }
+      }
+
+      if (uploadedUrlsArray.length === 0) return;
       // Save form data with image URLs to Firestore
       await addDoc(collection(db, "murnaShoppingPosts"), {
         ...formData,
-        images: imageUrls,
+        images: uploadedUrlsArray,
         colors: selectedColors,
         sizes: selectedSizes,
         createdAt: new Date()
       });
       setSubmitting(false)
+      //if user has a phone number, navigate to the home screen
+      Alert.alert(
+        "Success",
+        "Your post has been uploaded successfully! Would you like to add another one?",
+        [
+
+            {
+                text: 'Oui', onPress: () => console.log("Your post has been uploaded successfully!")
+            },
+            {
+                text: 'Non', onPress: () => {
+
+                    // navigation.navigat("AdminHomeScreen");
+                    console.log("Your post has been uploaded successfully!")
+                }
+            }
+
+        ]
+
+    );
       console.log("Form data with images saved successfully with these data:",
-        formData, selectedColors, selectedSizes, imageUrls);
+        formData, selectedColors, selectedSizes, uploadedUrlsArray);
+        console.log("uploadedUrlsArray", uploadedUrlsArray);
+        
       setSelectedImages([]);
       setSelectedColors([]);
       setSelectedSizes([]);
@@ -384,21 +454,6 @@ const myState = (props) => {
     }
   };
 
-  const [selectedImages, setSelectedImages] = useState([]);
-  const pickImages = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      allowsMultipleSelection: true, // Enable multiple selection
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setSelectedImages(result.assets);
-      //console.log("image num:", result.assets.length);
-
-
-      //return result.assets.map(asset => ({ uri: asset.uri }));
-    }
-  };
 
   const onSubmitMethod = async (formData) => {
 
@@ -431,32 +486,53 @@ const myState = (props) => {
 
   {/* --------Start of Fetch data fuctions and their states ----------------- Set data fuctions and their states ---------------*/ }
   //UseEffect
-  useEffect(() => {
-   
-    getAllProducts();
 
-  }, []);
- 
-  // get all Products
-  const [allProducts, setAllProducts] = useState([]);
-  const getAllProducts = async () => {
-    setLoading(true)
+
+ {/**
+
+    useEffect(() => {
+    getUserData();
+  }, []); 
+
+
+   //get current user
+  const currentUserId = auth().currentUser.uid
+  //get user data
+  const [userData, setUserData] = useState({});
+  const getUserData = async () => {
     try {
-      const q = query(collection(db, "murnaShoppingPosts"));
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      });
-      setAllProducts(data);
+      setLoading(true)
+      const userRef = doc(db, "murnaShoppingUsers", currentUserId);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        setUserData(userSnap.data());
+      }
       setLoading(false)
-    } catch (error) {
+
+    }
+    catch (error) {
       console.log(error);
       setLoading(false)
     }
   }
+
+  
+  */}
+
+
+
+  // get all Products
+{/**
+  
+    const dispatch = useDispatch();
+  const { allProducts, status } = useSelector((state) => state.products);
+
+  useEffect(() => {
+    if (status === 'idle' && allProducts.length === 0) {
+      dispatch(fetchAllProducts());
+    }
+  }, [status, allProducts]);
+  */}
 
 
 
@@ -466,7 +542,7 @@ const myState = (props) => {
 
   return (
     <MyContext.Provider value={{
-     
+
       // states
       loading, setLoading, mode, toggleMode,
 
@@ -481,10 +557,10 @@ const myState = (props) => {
       quantity, selectedQuantity, setSelectedQuantity,
 
       //Form data fuctions
-      pickImages, onSubmitMethod,
+      pickImages, selectedImages, onSubmitMethod,
 
       //Fetch data fuctions 
-      allProducts
+      //allProducts, userData
 
 
 

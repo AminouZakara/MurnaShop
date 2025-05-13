@@ -1,39 +1,16 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ProductList from '../productLists/ProductList'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from '../../../../firebaseConfig'
+import { useSelector } from 'react-redux'
 
 const GenderProp = ({ category, productFor, subCategory, selectedCategory, setSelectedCategory }) => {
 
-    const [calledProducts, setCalledProducts] = useState([]);
-    const [loading, setLoading] = useState(true)
-
+    const products = useSelector(state => state.products.items);
 
     // get prodcutFor from the database
-    useEffect(() => {
-        getCalledProducts();
-    }, [])
-    const getCalledProducts = async () => {
-        setLoading(true)
-        try {
-            const q = query(collection(db, "murnaShoppingPosts"), where("productFor", "==", productFor));
-            const querySnapshot = await getDocs(q);
-            const data = querySnapshot.docs.map((doc) => {
-                return {
-                    id: doc.id,
-                    ...doc.data(),
-                };
-            });
-            setCalledProducts(data);
-            setLoading(false)
-        } catch (error) {
-            console.log(error);
-            setLoading(false)
-        }
-    }
-    console.log("products:", calledProducts);
+    const calledProducts = products.filter((prod)=> prod.productFor == productFor)
 
+    console.log("ProdctFor", calledProducts.length);
     
         const [filteredProducts, setFilteredProducts] = useState([]);
         useEffect(
@@ -49,7 +26,7 @@ const GenderProp = ({ category, productFor, subCategory, selectedCategory, setSe
     
                 }
             },
-            [calledProducts, productFor, subCategory]
+            [productFor, subCategory]
         );
     
         //console.log("filteredProducts:", filteredProducts);

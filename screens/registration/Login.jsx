@@ -1,20 +1,192 @@
-import { Alert, Image, Keyboard, KeyboardAvoidingView, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
-import React, { useState } from 'react'
+import { ActivityIndicator, Alert, Image, Keyboard, KeyboardAvoidingView, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import { GoogleSignin } from '@react-native-google-signin/google-signin'
+import auth from '@react-native-firebase/auth'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { db } from '../../firebaseConfig'
+import { FIREBASE_WEB_CLIENT_ID } from '@env'
 
 const Login = () => {
     const navigation = useNavigation()
-
+    const [isLoading, setIsLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [userAuth, setUserAuth] = useState(null)
 
-    const handleLogin = () => {
-        navigation.navigate('Main');
+
+    const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert(
+                "Votre Information est Invalide",
+                "SVP remplissez tous les champs",
+                [
+                    {
+                        text: "Cancel",
+                        onPress: () => console.log("Cancel Pressed"),
+                        style: "cancel"
+                    },
+                    { text: "OK", onPress: () => console.log("OK Pressed") }
+                ],
+                { cancelable: false }
+            );
+        } else {
+            try {
+                setLoading(true);
+                const user = await auth().signInWithEmailAndPassword(email, password);
+                const docRef = doc(db, "murnaShoppingUsers", user.user.uid);
+                const docSnap = await getDoc(docRef);
+                //if user email is verified login
+                if (user.user.emailVerified) {
+                    if (docSnap.exists()) {
+                        const user = docSnap.data();
+                        await updateDoc(docRef, {
+                            lastLogin: new Date(),
+                        });
+                        navigation.navigate('Main');
+                        setLoading(false);
+                    }
+                } else {
+                    Alert.alert(
+                        "Email non Verifié",
+                        "SVP verifier votre email avant de vous connecter",
+                        [
+                            {
+                                text: "OK", onPress: () => {
+                                    firebase.auth().signOut();
+                                    navigation.navigate('Login');
+                                    console.log("OK Pressed")
+                                }
+                            }
+                        ],
+                        { cancelable: false }
+                    );
+                    setLoading(false);
+
+                }
+            } catch (error) {
+                setLoading(false);
+                Alert.alert(
+                    "Incorrect",
+                    "SVP verifier votre email et votre mot de passe",
+                    [
+                        {
+                            text: "OK", onPress: () => {
+                                console.log("OK Pressed")
+                            }
+                        }
+                    ],
+                    { cancelable: false }
+                );
+                setError(error.message);
+                console.log("This is the err", error);
+
+            }
+        }
+
     }
+
+
+    //Google Login 
+    useEffect(() => {
+        GoogleSignin.configure({
+            webClientId: FIREBASE_WEB_CLIENT_ID
+        });
+    }, []);
+
+    async function handleGoogleLogin() {
+        setIsLoading(true);
+        try {
+            const result = await GoogleSignin.signIn();
+            const token = result.data.idToken;
+            const credential = auth.GoogleAuthProvider.credential(token);
+            const userCredntial = await auth().signInWithCredential(credential);
+            //setAuthUser to user credential
+            setUserAuth(userCredntial.user);
+            console.log(userCredntial.user);
+            // if user is a new sign in, save data
+            const docRef = doc(db, "murnaShoppingUsers", userCredntial.user.uid);
+            if (userCredntial.additionalUserInfo.isNewUser) {
+                await setDoc(docRef, {
+                    name: userCredntial.user.displayName,
+                    email: userCredntial.user.email,
+                    photoURL: userCredntial.user.photoURL,
+                    userId: userCredntial.user.uid,
+                    region: "",
+                    city: "",
+                    town: "",
+                    neighborhood: "",
+                    sellerOf: "",
+                    storeAddress: "",
+                    phoneNumber: "",
+                    role: 'user',
+                    createdAt: new Date(),
+                });
+                console.log('User created');
+                navigation.navigate('Main');
+                setIsLoading(false)
+
+            }
+            else {
+                await updateDoc(docRef, {
+                    lastLogin: new Date(),
+                });
+                console.log('User already exists');
+                navigation.navigate('Main');
+                setIsLoading(false)
+            }
+        } catch (error) {
+            console.error(error);
+            setIsLoading(false)
+        }
+    }
+
+    //
+    useEffect(() => {
+        const subscriber = auth().onAuthStateChanged((user) => {
+            if (user) {
+                setUserAuth(user)
+                navigation.navigate('Main');
+            } else {
+                setUserAuth(null)
+                navigation.navigate('Login');
+            }
+        });
+        return subscriber;
+    }, []);
 
     const forgotPassword = () => {
         if (email) {
-            console.log("OK Pressed")
+            auth().sendPasswordResetEmail(email)
+                .then(() => {
+                    Alert.alert(
+                        "Réinitialisation de mot de passe",
+                        "Un email de réinitialisation de mot de passe a été envoyé à votre adresse email Veuillez consulter votre boîte de réception.",
+                        [
+                            {
+                                text: "OK",
+                                onPress: () => console.log("OK Pressed")
+                            }
+                        ],
+                        { cancelable: false }
+                    );
+                })
+                .catch((err) => {
+                    Alert.alert(
+                        "Réinitialisation de mot de passe",
+                        "Une erreur est survenue lors de l'envoi de l'email de réinitialisation de mot de passe. Veuillez réessayer plus tard.",
+                        [
+                            {
+                                text: "OK",
+                                onPress: () => console.log("OK Pressed")
+                            }
+                        ],
+                        { cancelable: false }
+                    );
+                    console.log(" Error: ", err);
+
+                });
         }
         else {
             Alert.alert(
@@ -31,166 +203,175 @@ const Login = () => {
         }
     };
 
-  return (
-    <View style={{
-        flex: 1,
-        backgroundColor: "white",
 
-    }}>
-<TouchableWithoutFeedback
-        onPress={() => {
-            Keyboard.dismiss();
-        }}
-    >
-        <KeyboardAvoidingView>
-                <SafeAreaView
-                    style={{
-                        backgroundColor: "white",
-                        alignItems: "center",
-                        justifyContent: "center"
-                    }}
-                >
-                    <View>
-                        <Image
-                            source={require("../../assets/images/logo.png")}
-                            style={{
-                                marginTop:100,
-                                marginVertical:30,
-                                width: 150,
-                                height: 150,
-                                resizeMode: "contain",
-                                borderRadius: 75,
-                                alignSelf:"center"
-                            }}
-                        />
-                    {/* ----------- Email and Password ------------- */}
-                    <View style={{ marginTop: 20 }}>
-                        <View style={{ marginTop: 0 }}>
-                            <Text style={{ fontSize: 17, fontWeight: "600", color: "gray" }}>
-                                Email
-                            </Text>
+    return (
+        <View style={{
+            flex: 1,
 
-                            <TextInput
-                                value={email}
-                                onChangeText={(text) => setEmail(text)}
-                                placeholder="Entrer votre address email"
-                                placeholderTextColor={email ? 'green' : "orange"}
-                                autoCapitalize={false}
-
-
-                                style={{
-                                    fontSize: email ? 17 : 17,
-                                    borderBottomColor: "gray",
-                                    borderBottomWidth: 1,
-                                    marginVertical: 10,
-                                    width: 300,
-                                    color: email ? "green" : "orange"
-                                }}
-                            />
-                        </View>
-
-                        <View style={{ marginTop: 15 }}>
-                            <Text style={{ fontSize: 17, fontWeight: "600", color: "gray" }}>
-                                Mot de passe
-                            </Text>
-
-                            <TextInput
-                                value={password}
-                                onChangeText={(text) => setPassword(text)}
-                                secureTextEntry={true}
-                                placeholder="* * * * * * * * * * * "
-                                placeholderTextColor={"orange"}
-                                style={{
-                                    fontSize: password ? 17 : 17,
-                                    borderBottomColor: "gray",
-                                    borderBottomWidth: 1,
-                                    marginVertical: 10,
-                                    width: 300,
-                                    color: password ? "green" : "orange"
-
-                                }}
-                            />
-                        </View>
-
-                    </View>
-                    <TouchableOpacity
-                        onPress={handleLogin}
+        }}>
+            <TouchableWithoutFeedback
+                onPress={() => {
+                    Keyboard.dismiss();
+                }}
+            >
+                <KeyboardAvoidingView>
+                    <SafeAreaView
                         style={{
-                            width: 300,
-                            backgroundColor: "#FF9900",
-                            padding: 14,
-                            borderRadius: 7,
-                            marginTop: 30,
-                            marginLeft: "auto",
-                            marginRight: "auto",
+                            alignItems: "center",
+                            justifyContent: "center"
                         }}
                     >
-                        <Text
-                            style={{
-                                textAlign: "center",
-                                color: "white",
-                                fontSize: 14,
-                                fontWeight: "bold",
-                            }}
-                        >
-                            CONNECTER
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={
-                            () => console.log("GoogleSignin clicked")
-                        }
-                        style={{
-                            width: 300,
-                            backgroundColor: "#176BEF",
-                            padding: 14,
-                            borderRadius: 7,
-                            marginTop: 30,
-                            marginLeft: "auto",
-                            marginRight: "auto",
-                        }}
-                    >
-                        <Text
-                            style={{
-                                textAlign: "center",
-                                color: "white",
-                                fontSize: 15,
-                                fontWeight: "bold",
-                            }}
-                        >
-                            Connecter avec Google
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={{ marginTop: 30 }}
-                        onPress={forgotPassword}
-                    >
-                        <Text style={{ textAlign: "center", color: "grey", fontSize: 15 }}>Mot de passe oublié?</Text>
-                    </TouchableOpacity>
+                        <View>
+                            <Image
+                                source={require("../../assets/images/logo.png")}
+                                style={{
+                                    marginTop: 100,
+                                    marginVertical: 30,
+                                    width: 150,
+                                    height: 150,
+                                    resizeMode: "contain",
+                                    borderRadius: 75,
+                                    alignSelf: "center"
+                                }}
+                            />
+                            {/* ----------- Email and Password ------------- */}
+                            <View style={{ marginTop: 20 }}>
+                                <View style={{ marginTop: 0 }}>
+                                    <Text style={{ fontSize: 17, fontWeight: "500", }}>
+                                        Email
+                                    </Text>
 
-                    <View
-
-                        style={{ marginTop: 5, flexDirection: "row" }}
-                    >
-                        <Text style={{ textAlign: "center", color: "gray", fontSize: 15 }}>
-                            Vous n'avez pas un compte?
-                        </Text>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('Register')}
-                        >
-                            <Text style={{ textAlign: "center", color: "#176BEF", fontSize: 15 }}> Créer ici</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    </View>
+                                    <TextInput
+                                        value={email}
+                                        onChangeText={(text) => setEmail(text)}
+                                        placeholder="Entrer votre address email"
+                                        placeholderTextColor={email ? 'green' : "gray"}
+                                        autoCapitalize={false}
 
 
-                </SafeAreaView>
-        </KeyboardAvoidingView>
+                                        style={{
+                                            fontSize: email ? 17 : 17,
+                                            borderBottomColor: "gray",
+                                            borderBottomWidth: 1,
+                                            marginVertical: 10,
+                                            width: 300,
+                                            color: email ? "green" : "gray"
+                                        }}
+                                    />
+                                </View>
 
-    </TouchableWithoutFeedback>
-    </View>
-  )
+                                <View style={{ marginTop: 15 }}>
+                                    <Text style={{ fontSize: 17, fontWeight: "500", }}>
+                                        Mot de passe
+                                    </Text>
+
+                                    <TextInput
+                                        value={password}
+                                        onChangeText={(text) => setPassword(text)}
+                                        secureTextEntry={true}
+                                        placeholder="* * * * * * * * * * * "
+                                        placeholderTextColor={"gray"}
+                                        style={{
+                                            fontSize: password ? 17 : 17,
+                                            borderBottomColor: "gray",
+                                            borderBottomWidth: 1,
+                                            marginVertical: 10,
+                                            width: 300,
+                                            color: password ? "green" : "orange"
+
+                                        }}
+                                    />
+                                </View>
+
+                            </View>
+                            <TouchableOpacity
+                                onPress={handleLogin}
+                                style={{
+                                    width: 300,
+                                    backgroundColor: "#FF9900",
+                                    padding: 14,
+                                    borderRadius: 7,
+                                    marginTop: 30,
+                                    marginLeft: "auto",
+                                    marginRight: "auto",
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        textAlign: "center",
+                                        color: "white",
+                                        fontSize: 14,
+                                        fontWeight: "bold",
+                                    }}
+                                >
+                                    {
+                                        loading ? <ActivityIndicator size="small" color="white" /> : "SE CONNECTER"
+                                    }
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleGoogleLogin}
+                                style={{
+                                    width: 300,
+                                    backgroundColor: "white",
+                                    padding: isLoading ? 14 : 6,
+                                    borderRadius: 7,
+                                    marginTop: 30,
+                                    marginLeft: "auto",
+                                    marginRight: "auto",
+                                }}
+                            >
+                                {
+                                    isLoading ? <ActivityIndicator size="small" color="blue" /> :
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                            <Image
+                                                source={require('../../assets/images/google.png')}
+                                                style={{
+                                                    width: 35,
+                                                    height: 35,
+                                                    marginRight: 10,
+                                                }}
+                                            />
+                                            <Text style={{
+                                                textAlign: "center",
+                                                fontSize: 15,
+                                                color: "grey",
+                                                fontWeight: "700",
+                                            }}>CONTINUER AVEC GOOGLE</Text>
+
+                                        </View>
+                                }
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ marginTop: 30 }}
+                                onPress={forgotPassword}
+                            >
+                                <Text style={{ textAlign: "center", color: "grey", fontSize: 15 }}>Mot de passe oublié?</Text>
+                            </TouchableOpacity>
+
+                            <View
+
+                                style={{ marginTop: 5, flexDirection: "row", justifyContent: "center" }}
+                            >
+                                <Text style={{ textAlign: "center", color: "gray", fontSize: 15 }}>
+                                    Vous n'avez pas un compte?
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate('Register')}
+                                >
+                                    <Text style={{ textAlign: "center", color: "#176BEF", fontSize: 15 }}> Créer ici</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                        </View>
+
+
+                    </SafeAreaView>
+                </KeyboardAvoidingView>
+
+            </TouchableWithoutFeedback>
+        </View>
+    )
 }
 
 export default Login

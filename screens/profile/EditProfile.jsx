@@ -2,43 +2,46 @@ import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, T
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { collection, doc, getDocs, getFirestore, query, updateDoc, where } from 'firebase/firestore';
-import { app } from '../../firebaseConfig';
-import auth from "@react-native-firebase/auth"
+import { app} from '../../firebaseConfig';
 import { Picker } from '@react-native-picker/picker';
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { useDispatch, useSelector } from 'react-redux';
+import { getUserData } from '../../redux/userSlice';
+import auth from '@react-native-firebase/auth';
 
 
 const EditProfile = () => {
-     const navigation = useNavigation()
-        useLayoutEffect(() => {
-          // place the name of the App on right corner, the notification icon on left corner and the search bar bellow them
-          navigation.setOptions({
+    const navigation = useNavigation()
+    useLayoutEffect(() => {
+        // place the name of the App on right corner, the notification icon on left corner and the search bar bellow them
+        navigation.setOptions({
             headerTitle: () => (<View
-              style={{ marginLeft: 30 }}
+                style={{ marginLeft: 30 }}
             >
-              <Text style={{ color: "#FF9900", fontSize: 18 }}>Modifier Profil</Text>
+                <Text style={{ color: "#FF9900", fontSize: 18 }}>Modifier Profil</Text>
             </View>),
             headerStyle: {
-              backgroundColor: "white",
-              borderBottomColor: "transparent",
-              shadowColor: "transparent"
+                backgroundColor: "white",
+                borderBottomColor: "transparent",
+                shadowColor: "transparent"
             },
             headerTitleStyle: {
-              fontWeight: "bold",
-              fontSize: 20,
+                fontWeight: "bold",
+                fontSize: 20,
             },
             headerLeft: () => (
-              <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10, }}>
-                <Icon name="arrow-back" size={24} color="#FF9900" />
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 10, }}>
+                    <Icon name="arrow-back" size={24} color="#FF9900" />
+                </TouchableOpacity>
             ),
-      
-      
-          });
-        }, [navigation]);
+
+
+        });
+    }, [navigation]);
     const db = getFirestore(app)
     const route = useRoute();
-    const userData = route?.params?.userData;
+    {/**
+      const userData = route?.params?.userData;
     //reload the page when user comes back to this page
     useEffect(() => {
         navigation.addListener('focus', () => {
@@ -49,6 +52,17 @@ const EditProfile = () => {
     }, [navigation])
 
     console.log("User Data from Edit Profile", userData?.name);
+    
+    */}
+
+    // To fetch user data
+    const dispatch = useDispatch();
+    const { userData, error } = useSelector(state => state.user);
+
+
+    //console.log("userData from redux", userData?.name);
+    // console.log("Error getting user Data from redux", error);
+
 
 
     {/* Used to get user data end */ }
@@ -60,12 +74,18 @@ const EditProfile = () => {
                     return userData.name
                 case "email":
                     return userData.email
-                case "city":
-                    return userData.city
-                case "address":
+
                     return userData.address
                 case "phoneNumber":
                     return userData.phoneNumber
+                case "region":
+                    return userData.region; // Must match how your data is saved (e.g. name or object)
+                case "city":
+                    return userData.city;
+                case "town":
+                    return userData.town;
+                case "neighborhood":
+                    return userData.neighborhood;
             }
 
         } else
@@ -76,11 +96,13 @@ const EditProfile = () => {
 
     const [name, setName] = useState(getUser('name'));
     const [email, setEmail] = useState(getUser('email'));
-    const [city, setCity] = useState(getUser('city'));
-    const [address, setAddress] = useState(getUser('address'));
     const [phoneNumber, setPhoneNumber] = useState(getUser('phoneNumber'));
     const [photoURL, setPhotoURL] = useState(getUser('photoURL'));
-    
+    const [regionName, setRegionName] = useState(getUser('region'));
+    const [cityName, setCityName] = useState(getUser('city'));
+    const [townName, setTownName] = useState(getUser('town'));
+    const [neighborhoodName, setNeighborhoodName] = useState(getUser('neighborhood'));
+
 
     // Pick address
     {/* Used to get Locations */ }
@@ -106,10 +128,7 @@ const EditProfile = () => {
     const [townId, setTownId] = useState("");
     const [neighborhoodId, setNeighborhoodId] = useState("");
 
-    const [regionName, setRegionName] = useState("");
-    const [cityName, setCityName] = useState("");
-    const [townName, setTownName] = useState("");
-    const [neighborhoodName, setNeighborhoodName] = useState("");
+
     const [fieldValue, setFieldValue] = useState({});
 
     // Fetch Regions
@@ -134,7 +153,7 @@ const EditProfile = () => {
         fetchRegions();
     }, []);
 
-    console.log("regions:", regions);
+    //console.log("regions:", regions);
 
     // Fetch Cities when Region is selected
     useEffect(() => {
@@ -166,8 +185,8 @@ const EditProfile = () => {
 
         fetchCities();
     }, [selectedRegion]);
-    console.log("selectedRegion:", selectedRegion);
-    console.log("cities:", cities);
+    //console.log("selectedRegion:", selectedRegion);
+    //console.log("cities:", cities);
 
     // Fetch Towns when City is selected
     useEffect(() => {
@@ -226,8 +245,9 @@ const EditProfile = () => {
         }
         fetchNeighborhoods();
     }, [selectedTown]);
-    console.log("neighborhoods:", neighborhoods);
 
+    {/**
+    console.log("neighborhoods:", neighborhoods);
     console.log("towns:", towns);
     console.log("regionId:", regionId);
     console.log("regionName:", regionName);
@@ -240,6 +260,12 @@ const EditProfile = () => {
 
     console.log("neighborhoodId:", neighborhoodId);
     console.log("neighborhoodName:", neighborhoodName);
+        */}
+
+
+    console.log("current email:", email);
+    console.log("current phone number:", phoneNumber);
+    console.log("current region:", regionName);
 
 
     //handle
@@ -259,7 +285,6 @@ const EditProfile = () => {
             lastLogin: new Date(),
             // photoURL: photoURL
         };
-        const q = query(collection(db, "murnaShoppingUsers"), where("userId", "==", user.uid));
         // get the them and update them
         if (userData) {
             //Update User
@@ -273,51 +298,57 @@ const EditProfile = () => {
                         onPress: () => navigation.goBack()
                     },
                     {
-                        text: 'Oui', onPress: () => {
+                        text: 'Oui', onPress: async () => {
                             setLoading(true)
-                            //update 
-                            getDocs(q).then((querySnapshot) => {
-                                querySnapshot.forEach((doc) => {
-                                    const post = doc.data();
-                                    const postUpdate = {
-                                        phoneNumber: phoneNumber,
-                                    };
-                                    updateDoc(doc.ref, postUpdate);
-                                });
-                            });
-                            updateDoc(userRef, userUpdate)
-                                .then(() => {
-                                    Alert.alert(
-                                        `Modification`,
-                                        `Les informations ont été modifiées avec succès`,
-                                        [
+                            try {
+                                await updateDoc(userRef, {
+                                    ...userUpdate,
+                                    name: name,
+                                    email: email,
+                                    region: regionName,
+                                    city: cityName,
+                                    town: townName,
+                                    neighborhood: neighborhoodName,
+                                    phoneNumber: phoneNumber,
+                                    photoURL: userData.photoURL,
+                                    userId: user.uid,
+                                    lastLogin: new Date(),
+                                })
+                                Alert.alert(
+                                    `Modification`,
+                                    `Les informations ont été modifiées avec succès`,
+                                    [
 
-                                            {
-                                                text: 'Ok',
-                                                onPress: () => navigation.goBack()
+                                        {
+                                            text: 'Ok',
+                                            onPress: () => {
+                                                dispatch(getUserData());
+                                                navigation.goBack()
                                             }
-                                        ]
-                                    );
-                                    setLoading(false)
-                                    console.log(" user is updated successfully");
+                                        }
+                                    ]
+                                );
+                                setLoading(false)
+                                console.log(" user is updated successfully");
 
-                                }).catch((error) => {
-                                    Alert.alert(
-                                        `Modification`,
-                                        `Une erreur est survenue`,
-                                        [
-                                            {
-                                                text: 'OK',
-                                                onPress: () => {
-                                                    setLoading(false)
-                                                    navigation.goBack()
-                                                    console.log("Error:", error);
+                            } catch (error) {
+                                Alert.alert(
+                                    `Modification`,
+                                    `Une erreur est survenue`,
+                                    [
+                                        {
+                                            text: 'OK',
+                                            onPress: () => {
+                                                setLoading(false)
+                                                navigation.goBack()
+                                                console.log("Error:", error);
 
-                                                }
                                             }
-                                        ]
-                                    );
-                                });
+                                        }
+                                    ]
+                                );
+                            }
+
                         }
 
                     }
@@ -342,8 +373,12 @@ const EditProfile = () => {
                     <>
                         <ScrollView
                             showsVerticalScrollIndicator={false}
+                            style={{
+                                width: "100%",
+                                paddingHorizontal: 10
+                            }}
 
-                            >
+                        >
                             <View style={{ marginVertical: 10, marginBottom: 20 }}>
                                 <Text style={{ fontSize: 16, fontWeight: "600", color: "gray" }}>
                                     Nom Prénom
@@ -360,7 +395,7 @@ const EditProfile = () => {
                                         borderBottomWidth: 1,
                                         marginVertical: 4,
                                         width: "100%",
-                                        color: "black"
+                                        color: "lightgrey"
 
                                     }}
                                 />
@@ -382,7 +417,7 @@ const EditProfile = () => {
                                         borderBottomWidth: 1,
                                         marginVertical: 8,
                                         width: "100%",
-                                        color: "black"
+                                        color: "lightgrey"
                                     }}
                                 />
                             </View>
@@ -405,7 +440,7 @@ const EditProfile = () => {
                                         borderBottomColor: "gray",
                                         borderBottomWidth: 1,
                                         marginVertical: 10,
-                                        width: 300,
+                                        width: "100%",
                                         color: "black"
                                     }}
                                 />
@@ -414,192 +449,403 @@ const EditProfile = () => {
 
 
                             {/*Address Dropdown List with picker*/}
-                            
-                            <View style={{marginTop: 30}}>
-                            <Text style={{ fontSize: 18, fontWeight: "600", color: "gray" }}>
+
+                            <View style={{ marginTop: 30, width: "100%" }}>
+                                <Text style={{ fontSize: 18, fontWeight: "600", color: "gray" }}>
                                     Address
                                 </Text>
-                                {loading ? <ActivityIndicator size="large" color="blue" /> : (
-                                    <View>
-                                        {
-                                            <View style={{
-                                                paddingHorizontal: 10,
-                                                borderWidth: 0.8,
-                                                borderColor: 'grey',
-                                                borderRadius: 10,
-                                                marginTop: 10
+                                {
+                                    userData?.region ? (
+                                        <View>
+                                            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                                                <Text style={{ marginTop: 10, color: "grey", fontSize: 16 }}>Adresse actuel </Text>
 
-                                            }}>
-                                                <Picker
-                                                    //enabled={!post ? true : false}
-
-                                                    selectedValue={selectedRegion}
-                                                    onValueChange={
-                                                        (itemValue, itemIndex) => {
-                                                            setSelectedRegion(itemValue);
-                                                            setRegionId(itemValue.id)
-                                                            setRegionName(itemValue.name)
-                                                            setFieldValue('region', itemValue.name);
-                                                            setSelectedCity(null);
-                                                            setSelectedTown(null);
-                                                            setSelectedNeighborhood(null)
-                                                        }
-                                                    }
-                                                // style={{ color: post ? 'lightgrey' : 'black' }}
-
-                                                >
-
-                                                    <Picker.Item label="Select Region" value="" style={{
-                                                        color: 'grey',
-                                                        fontSize: 18
-
-                                                    }} />
-                                                    {regions.map(region => (
-                                                        <Picker.Item key={region.id} label={region.name} value={region} />
-                                                    ))}
-                                                </Picker>
-
+                                                <Text style={{ marginTop: 10, color: "black", fontWeight: "600", fontSize: 14 }}>{userData?.region}</Text>
                                             </View>
-                                        }
+                                            <View style={{ borderBottomWidth: 0.5, borderColor: "grey" }} />
+                                            <Text style={{ fontSize: 16, fontStyle: "italic" }}>{userData?.city}, {userData?.town}, {userData?.neighborhood} </Text>
 
-                                        {selectedRegion && (
-                                            <>
-                                                <View style={{
-                                                    paddingHorizontal: 10,
-                                                    borderWidth: 0.8,
-                                                    borderColor: 'grey',
-                                                    borderRadius: 10,
-                                                    marginTop: 15
 
-                                                }}>
-                                                    <Picker
-                                                        //  enabled={!post ? true : false}
+                                            <View style={{ marginTop: 20 }}>
+                                                <Text style={{ fontSize: 16, fontStyle: "italic", color: "green", fontWeight: "600", }}>Pour changer votre adresse veillez sélectionner la nouvelle adresse dans la liste ci-dessous</Text>
 
-                                                        selectedValue={selectedCity}
-                                                        onValueChange={
-                                                            (itemValue, itemIndex) => {
-                                                                setSelectedCity(itemValue);
-                                                                setCityId(itemValue.id)
-                                                                setCityName(itemValue.name)
-                                                                setFieldValue('city', itemValue.name);
-                                                                setSelectedTown(null);
-                                                                setSelectedNeighborhood(null)
-                                                            }
+                                                {loading ? <ActivityIndicator size="large" color="blue" /> : (
+                                                    <View>
+                                                        {
+                                                            <View style={{
+                                                                paddingHorizontal: 10,
+                                                                borderWidth: 0.8,
+                                                                borderColor: 'grey',
+                                                                borderRadius: 10,
+                                                                marginTop: 10
 
+                                                            }}>
+                                                                <Picker
+                                                                    //enabled={!post ? true : false}
+
+                                                                    selectedValue={selectedRegion}
+                                                                    onValueChange={
+                                                                        (itemValue, itemIndex) => {
+                                                                            setSelectedRegion(itemValue);
+                                                                            setRegionId(itemValue.id)
+                                                                            setRegionName(itemValue.name)
+                                                                            setFieldValue('region', itemValue.name);
+                                                                            setSelectedCity(null);
+                                                                            setSelectedTown(null);
+                                                                            setSelectedNeighborhood(null)
+                                                                        }
+                                                                    }
+                                                                // style={{ color: post ? 'lightgrey' : 'black' }}
+
+                                                                >
+
+                                                                    <Picker.Item label="Sélectionner la région" value="" style={{
+                                                                        color: 'grey',
+                                                                        fontSize: 18
+
+                                                                    }} />
+                                                                    {regions.map(region => (
+                                                                        <Picker.Item key={region.id} label={region.name} value={region} />
+                                                                    ))}
+                                                                </Picker>
+
+                                                            </View>
                                                         }
-                                                    //style={{ color: post ? 'lightgrey' : 'black' }}
 
-                                                    >
-                                                        <Picker.Item label="Select City" value="" style={{
-                                                            color: 'grey',
-                                                            fontSize: 18
+                                                        {selectedRegion && (
+                                                            <>
+                                                                <View style={{
+                                                                    paddingHorizontal: 10,
+                                                                    borderWidth: 0.8,
+                                                                    borderColor: 'grey',
+                                                                    borderRadius: 10,
+                                                                    marginTop: 15
 
-                                                        }} />
-                                                        {cities.map(city => (
-                                                            <Picker.Item key={city.id} label={city.name} value={city} />
-                                                        ))}
-                                                    </Picker>
+                                                                }}>
+                                                                    <Picker
+                                                                        //  enabled={!post ? true : false}
+
+                                                                        selectedValue={selectedCity}
+                                                                        onValueChange={
+                                                                            (itemValue, itemIndex) => {
+                                                                                setSelectedCity(itemValue);
+                                                                                setCityId(itemValue.id)
+                                                                                setCityName(itemValue.name)
+                                                                                setFieldValue('city', itemValue.name);
+                                                                                setSelectedTown(null);
+                                                                                setSelectedNeighborhood(null)
+                                                                            }
+
+                                                                        }
+                                                                    //style={{ color: post ? 'lightgrey' : 'black' }}
+
+                                                                    >
+                                                                        <Picker.Item label="Sélectionner la ville" value="" style={{
+                                                                            color: 'grey',
+                                                                            fontSize: 18
+
+                                                                        }} />
+                                                                        {cities.map(city => (
+                                                                            <Picker.Item key={city.id} label={city.name} value={city} />
+                                                                        ))}
+                                                                    </Picker>
+
+                                                                </View>
+
+                                                            </>
+                                                        )}
+
+
+                                                        {selectedCity && (
+                                                            <>
+                                                                <View style={{
+                                                                    paddingHorizontal: 10,
+                                                                    borderWidth: 0.8,
+                                                                    borderColor: 'grey',
+                                                                    borderRadius: 10,
+                                                                    marginTop: 15
+
+                                                                }}>
+
+                                                                    <Picker
+                                                                        //    enabled={!post ? true : false}
+
+                                                                        selectedValue={selectedTown}
+                                                                        onValueChange={
+                                                                            (itemValue, itemIndex) => {
+                                                                                setSelectedTown(itemValue);
+                                                                                setTownId(itemValue.id)
+                                                                                setTownName(itemValue.name)
+                                                                                setFieldValue('town', itemValue.name);
+                                                                                setSelectedNeighborhood(null)
+                                                                            }
+                                                                        }
+                                                                    //   style={{ color: post ? 'lightgrey' : 'black' }}
+
+                                                                    >
+                                                                        <Picker.Item label="Sélectionner la commune" value="" style={{
+                                                                            color: 'grey',
+                                                                            fontSize: 18
+
+                                                                        }}
+
+                                                                        />
+                                                                        {towns.map(town => (
+                                                                            <Picker.Item key={town.id} label={town.name} value={town} />
+                                                                        ))}
+                                                                    </Picker>
+
+                                                                </View>
+
+                                                            </>
+                                                        )}
+                                                        {/******** Neighborhood *********/}
+                                                        {selectedTown && (
+                                                            <>
+                                                                <View style={{
+                                                                    paddingHorizontal: 10,
+                                                                    borderWidth: 0.8,
+                                                                    borderColor: 'grey',
+                                                                    borderRadius: 10,
+                                                                    marginTop: 15
+
+                                                                }}>
+
+                                                                    <Picker
+                                                                        //    enabled={!post ? true : false}
+
+                                                                        selectedValue={selectedNeighborhood}
+                                                                        onValueChange={
+                                                                            (itemValue, itemIndex) => {
+                                                                                setSelectedNeighborhood(itemValue);
+                                                                                setNeighborhoodId(itemValue.id)
+                                                                                setNeighborhoodName(itemValue.name)
+                                                                                setFieldValue('neighborhood', itemValue.name);
+                                                                            }
+                                                                        }
+                                                                    //   style={{ color: post ? 'lightgrey' : 'black' }}
+
+                                                                    >
+                                                                        <Picker.Item label="Sélectionner le quartier" value="" style={{
+                                                                            color: 'grey',
+                                                                            fontSize: 18
+
+                                                                        }}
+
+                                                                        />
+                                                                        {neighborhoods.map(neighborhood => (
+                                                                            <Picker.Item key={neighborhood.id} label={neighborhood.name} value={neighborhood} />
+                                                                        ))}
+                                                                    </Picker>
+
+                                                                </View>
+
+
+                                                            </>
+                                                        )}
+
+
+
+
+
+                                                    </View>
+                                                )}
+                                            </View>
+                                        </View>
+                                    ) : (
+                                        <View>
+                                            <Text style={{ marginTop: 5, color: "orange", fontWeight: "600", fontSize: 18 }}>Vous n'avez pas encore d'adresse</Text>
+
+                                            <Text style={{ fontSize: 16, fontStyle: "italic", color: "green", fontWeight: "600", }}>Pour ajouter votre adresse veillez sélectionner la nouvelle adresse dans la liste ci-dessous</Text>
+
+                                            {loading ? <ActivityIndicator size="large" color="blue" /> : (
+                                                <View>
+                                                    {
+                                                        <View style={{
+                                                            paddingHorizontal: 10,
+                                                            borderWidth: 0.8,
+                                                            borderColor: 'grey',
+                                                            borderRadius: 10,
+                                                            marginTop: 10
+
+                                                        }}>
+                                                            <Picker
+                                                                //enabled={!post ? true : false}
+
+                                                                selectedValue={selectedRegion}
+                                                                onValueChange={
+                                                                    (itemValue, itemIndex) => {
+                                                                        setSelectedRegion(itemValue);
+                                                                        setRegionId(itemValue.id)
+                                                                        setRegionName(itemValue.name)
+                                                                        setFieldValue('region', itemValue.name);
+                                                                        setSelectedCity(null);
+                                                                        setSelectedTown(null);
+                                                                        setSelectedNeighborhood(null)
+                                                                    }
+                                                                }
+                                                            // style={{ color: post ? 'lightgrey' : 'black' }}
+
+                                                            >
+
+                                                                <Picker.Item label="Sélectionner la région" value="" style={{
+                                                                    color: 'grey',
+                                                                    fontSize: 18
+
+                                                                }} />
+                                                                {regions.map(region => (
+                                                                    <Picker.Item key={region.id} label={region.name} value={region} />
+                                                                ))}
+                                                            </Picker>
+
+                                                        </View>
+                                                    }
+
+                                                    {selectedRegion && (
+                                                        <>
+                                                            <View style={{
+                                                                paddingHorizontal: 10,
+                                                                borderWidth: 0.8,
+                                                                borderColor: 'grey',
+                                                                borderRadius: 10,
+                                                                marginTop: 15
+
+                                                            }}>
+                                                                <Picker
+                                                                    //  enabled={!post ? true : false}
+
+                                                                    selectedValue={selectedCity}
+                                                                    onValueChange={
+                                                                        (itemValue, itemIndex) => {
+                                                                            setSelectedCity(itemValue);
+                                                                            setCityId(itemValue.id)
+                                                                            setCityName(itemValue.name)
+                                                                            setFieldValue('city', itemValue.name);
+                                                                            setSelectedTown(null);
+                                                                            setSelectedNeighborhood(null)
+                                                                        }
+
+                                                                    }
+                                                                //style={{ color: post ? 'lightgrey' : 'black' }}
+
+                                                                >
+                                                                    <Picker.Item label="Sélectionner la ville" value="" style={{
+                                                                        color: 'grey',
+                                                                        fontSize: 18
+
+                                                                    }} />
+                                                                    {cities.map(city => (
+                                                                        <Picker.Item key={city.id} label={city.name} value={city} />
+                                                                    ))}
+                                                                </Picker>
+
+                                                            </View>
+
+                                                        </>
+                                                    )}
+
+
+                                                    {selectedCity && (
+                                                        <>
+                                                            <View style={{
+                                                                paddingHorizontal: 10,
+                                                                borderWidth: 0.8,
+                                                                borderColor: 'grey',
+                                                                borderRadius: 10,
+                                                                marginTop: 15
+
+                                                            }}>
+
+                                                                <Picker
+                                                                    //    enabled={!post ? true : false}
+
+                                                                    selectedValue={selectedTown}
+                                                                    onValueChange={
+                                                                        (itemValue, itemIndex) => {
+                                                                            setSelectedTown(itemValue);
+                                                                            setTownId(itemValue.id)
+                                                                            setTownName(itemValue.name)
+                                                                            setFieldValue('town', itemValue.name);
+                                                                            setSelectedNeighborhood(null)
+                                                                        }
+                                                                    }
+                                                                //   style={{ color: post ? 'lightgrey' : 'black' }}
+
+                                                                >
+                                                                    <Picker.Item label="Sélectionner la commune" value="" style={{
+                                                                        color: 'grey',
+                                                                        fontSize: 18
+
+                                                                    }}
+
+                                                                    />
+                                                                    {towns.map(town => (
+                                                                        <Picker.Item key={town.id} label={town.name} value={town} />
+                                                                    ))}
+                                                                </Picker>
+
+                                                            </View>
+
+                                                        </>
+                                                    )}
+                                                    {/******** Neighborhood *********/}
+                                                    {selectedTown && (
+                                                        <>
+                                                            <View style={{
+                                                                paddingHorizontal: 10,
+                                                                borderWidth: 0.8,
+                                                                borderColor: 'grey',
+                                                                borderRadius: 10,
+                                                                marginTop: 15
+
+                                                            }}>
+
+                                                                <Picker
+                                                                    //    enabled={!post ? true : false}
+
+                                                                    selectedValue={selectedNeighborhood}
+                                                                    onValueChange={
+                                                                        (itemValue, itemIndex) => {
+                                                                            setSelectedNeighborhood(itemValue);
+                                                                            setNeighborhoodId(itemValue.id)
+                                                                            setNeighborhoodName(itemValue.name)
+                                                                            setFieldValue('neighborhood', itemValue.name);
+                                                                        }
+                                                                    }
+                                                                //   style={{ color: post ? 'lightgrey' : 'black' }}
+
+                                                                >
+                                                                    <Picker.Item label="Sélectionner le quartier" value="" style={{
+                                                                        color: 'grey',
+                                                                        fontSize: 18
+
+                                                                    }}
+
+                                                                    />
+                                                                    {neighborhoods.map(neighborhood => (
+                                                                        <Picker.Item key={neighborhood.id} label={neighborhood.name} value={neighborhood} />
+                                                                    ))}
+                                                                </Picker>
+
+                                                            </View>
+
+
+                                                        </>
+                                                    )}
+
+
+
+
 
                                                 </View>
-
-                                            </>
-                                        )}
-
-
-                                        {selectedCity && (
-                                            <>
-                                                <View style={{
-                                                    paddingHorizontal: 10,
-                                                    borderWidth: 0.8,
-                                                    borderColor: 'grey',
-                                                    borderRadius: 10,
-                                                    marginTop: 15
-
-                                                }}>
-
-                                                    <Picker
-                                                        //    enabled={!post ? true : false}
-
-                                                        selectedValue={selectedTown}
-                                                        onValueChange={
-                                                            (itemValue, itemIndex) => {
-                                                                setSelectedTown(itemValue);
-                                                                setTownId(itemValue.id)
-                                                                setTownName(itemValue.name)
-                                                                setFieldValue('town', itemValue.name);
-                                                                setSelectedNeighborhood(null)
-                                                            }
-                                                        }
-                                                    //   style={{ color: post ? 'lightgrey' : 'black' }}
-
-                                                    >
-                                                        <Picker.Item label="Select Town" value="" style={{
-                                                            color: 'grey',
-                                                            fontSize: 18
-
-                                                        }}
-
-                                                        />
-                                                        {towns.map(town => (
-                                                            <Picker.Item key={town.id} label={town.name} value={town} />
-                                                        ))}
-                                                    </Picker>
-
-                                                </View>
-
-                                            </>
-                                        )}
-                                        {/******** Neighborhood *********/}
-                                        {selectedTown && (
-                                            <>
-                                                <View style={{
-                                                    paddingHorizontal: 10,
-                                                    borderWidth: 0.8,
-                                                    borderColor: 'grey',
-                                                    borderRadius: 10,
-                                                    marginTop: 15
-
-                                                }}>
-
-                                                    <Picker
-                                                        //    enabled={!post ? true : false}
-
-                                                        selectedValue={selectedNeighborhood}
-                                                        onValueChange={
-                                                            (itemValue, itemIndex) => {
-                                                                setSelectedNeighborhood(itemValue);
-                                                                setNeighborhoodId(itemValue.id)
-                                                                setNeighborhoodName(itemValue.name)
-                                                                setFieldValue('neighborhood', itemValue.name);
-                                                            }
-                                                        }
-                                                    //   style={{ color: post ? 'lightgrey' : 'black' }}
-
-                                                    >
-                                                        <Picker.Item label="Select Neighborhood" value="" style={{
-                                                            color: 'grey',
-                                                            fontSize: 18
-
-                                                        }}
-
-                                                        />
-                                                        {neighborhoods.map(neighborhood => (
-                                                            <Picker.Item key={neighborhood.id} label={neighborhood.name} value={neighborhood} />
-                                                        ))}
-                                                    </Picker>
-
-                                                </View>
-
-
-                                            </>
-                                        )}
+                                            )}
+                                        </View>
+                                    )
+                                }
 
 
 
 
-
-                                    </View>
-                                )}
                             </View>
 
 

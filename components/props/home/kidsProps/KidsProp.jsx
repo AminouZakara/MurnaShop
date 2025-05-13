@@ -1,39 +1,15 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ProductList from '../productLists/ProductList'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from '../../../../firebaseConfig'
+import { useSelector } from 'react-redux'
 
 const KidsProp = ({ category, productFor, subCategory, selectedCategory, setSelectedCategory }) => {
-    const [calledProducts, setCalledProducts] = useState([]);
-    const [loading, setLoading] = useState(true)
-
-
-    // get prodcutFor from the database
-    useEffect(() => {
-        getCalledProducts();
-    }, [])
-    const getCalledProducts = async () => {
-        setLoading(true)
-        try {
-            // get the products from the database where the productFor is equal to Fille or
-            const q = query(collection(db, "murnaShoppingPosts"), where("productFor", "in", ["Fille", "Garçon"]) );
-            const querySnapshot = await getDocs(q);
-            const data = querySnapshot.docs.map((doc) => {
-                return {
-                    id: doc.id,
-                    ...doc.data(),
-                };
-            });
-            setCalledProducts(data);
-            setLoading(false)
-        } catch (error) {
-            console.log(error);
-            setLoading(false)
-        }
-    }
-    console.log("products:", calledProducts);
-
+   const products = useSelector(state => state.products.items);
+   
+       //const calledProducts equals to filter from products where the productFor is equal to Fille or Garçon
+       const calledProducts = products.filter((prod) => prod.productFor === "Fille" || prod.productFor === "Garçon");
+   
+       console.log("ProdctFor", calledProducts.length);
     
         const [filteredProducts, setFilteredProducts] = useState([]);
         useEffect(
@@ -49,7 +25,7 @@ const KidsProp = ({ category, productFor, subCategory, selectedCategory, setSele
     
                 }
             },
-            [calledProducts, productFor, subCategory]
+            [productFor, subCategory]
         );
     
         //console.log("filteredProducts:", filteredProducts);

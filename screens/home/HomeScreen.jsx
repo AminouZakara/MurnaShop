@@ -1,5 +1,5 @@
-import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useContext, useLayoutEffect, useState } from 'react'
+import { FlatList, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useCallback, useContext, useLayoutEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import Header from '../../components/home/header/Header';
 import AllProducts from '../../components/home/categories/allProducts/AllProducts';
@@ -19,7 +19,8 @@ import VetementsProducts from '../../components/home/categories/vetementsProduct
 import FillesProducts from '../../components/home/categories/fillesProducts/FillesProducts';
 import GarconsProducts from '../../components/home/categories/garconsProducts/GarconsProducts';
 import MaisonProducts from '../../components/home/categories/maisonProducts/MaisonProducts';
-import myContext from '../../context/data/myContext';
+import { fetchAllProducts } from '../../redux/productsSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -57,15 +58,27 @@ const HomeScreen = () => {
   ]
   const [selectedCategory, setSelectedCategory] = useState('Tout');
 
-  const context = useContext(myContext);
-  const { allProducts, calledProducts } = context;
 
- 
-  
+
+  const dispatch = useDispatch();
+  const status = useSelector((state) => state.products.status);
+  const allProducts = useSelector(state => state.products.items);
+
+
+  const onRefresh = useCallback(() => {
+    dispatch(fetchAllProducts());
+  }, [dispatch]);
+
+
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={status === 'loading'} onRefresh={onRefresh} />
+        }
+
+      >
         <ScrollView
           showsHorizontalScrollIndicator={false}
           horizontal={true}
@@ -111,15 +124,15 @@ const HomeScreen = () => {
         </View>
         <View>
           {selectedCategory === "Tout" && <AllProducts category={"Tous les produits"} allProducts={allProducts} />}
-          {selectedCategory === "Femme" && <FemmeProducts productFor="Femme" calledProducts={calledProducts} />}
-          {selectedCategory === "Homme" && <HommeProducts productFor="Homme" calledProducts={calledProducts} />}
+          {selectedCategory === "Femme" && <FemmeProducts productFor="Femme" />}
+          {selectedCategory === "Homme" && <HommeProducts productFor="Homme" />}
           {selectedCategory === "Beauté" && <BeautyProducts category="Beauté" />}
           {selectedCategory === "Vêtements" && <VetementsProducts category="Vêtements" />}
           {selectedCategory === "Bijoux" && <JewelryProducts category="Bijoux" />}
           {selectedCategory === "Sports" && <SportsProducts category="Sports" />}
           {selectedCategory === "Enfant" && <KidsProducts productFor="Enfant" />}
-          {selectedCategory === "Fille" && <FillesProducts productFor="Fille" calledProducts={calledProducts}  />}
-          {selectedCategory === "Garçon" && <GarconsProducts productFor="Garçon" calledProducts={calledProducts}  />}
+          {selectedCategory === "Fille" && <FillesProducts productFor="Fille" />}
+          {selectedCategory === "Garçon" && <GarconsProducts productFor="Garçon" />}
           {selectedCategory === "Bébé" && <BabyProducts category="Bébé" />}
           {selectedCategory === "Électronique" && <ElectronicsProducts category="Électronique" />}
           {selectedCategory === "Maison" && <MaisonProducts category="Maison" />}
