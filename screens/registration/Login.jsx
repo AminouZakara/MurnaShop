@@ -157,8 +157,6 @@ const Login = () => {
                     city: "",
                     town: "",
                     neighborhood: "",
-                    sellerOf: "",
-                    storeAddress: "",
                     phoneNumber: "",
                     role: 'user',
                     createdAt: new Date(),
@@ -166,7 +164,6 @@ const Login = () => {
                 console.log('User created');
                 navigation.navigate('Main');
                 setIsLoading(false)
-
             }
             else {
                 await updateDoc(docRef, {

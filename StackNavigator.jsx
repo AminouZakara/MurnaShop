@@ -38,6 +38,7 @@ import ReviewProductScreen from './screens/profile/order/ReviewProductScreen';
 import CommandeDetails from './screens/admin/commandes/CommandeDetails';
 import CargaisonScreen from './screens/cargaison/CargaisonScreen';
 import CargaisonDetails from './screens/cargaison/CargaisonDetails';
+import ManageUsersRoles from './screens/author/manageUsersRole/ManageUsersRoles';
 
 const StackNavigator = () => {
     const Tab = createBottomTabNavigator();
@@ -277,6 +278,8 @@ const StackNavigator = () => {
 
                 {/* ------------ Author Screens --------*/}
                 <Stack.Screen name="AuthorMain" component={MyAuthorTabs} options={{ headerShown: false }} />
+                <Stack.Screen name="ManageUsersRoles" component={ManageUsersRoles} options={{ headerShown: true }} />
+
 
 
 

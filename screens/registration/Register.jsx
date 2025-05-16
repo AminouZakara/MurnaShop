@@ -94,18 +94,15 @@ const Register = () => {
                             city: "",
                             town: "",
                             neighborhood: "",
-                            sellerOf: "",
-                            storeAddress: "",
                             phoneNumber: "",
                             userId: user.user.uid,
                             role: 'user',
                             createdAt: new Date(),
-
                         });
                         // français
-                        Alert.alert("Félicitation!", 
+                        Alert.alert("Félicitation!",
                             "Votre compte a été créé avec succès. Veuillez vérifier votre boîte de réception pour confirmer votre adresse e-mail.",
-                          );
+                        );
                         navigation.navigate("Login");
                     } catch (error) {
                         console.log("Error:", error);
@@ -363,20 +360,20 @@ const Register = () => {
                                     {
                                         loading ? "En cours..." : "Crée mon compte"
                                     }
-                                    
+
                                 </Text>
                             </Pressable>
 
 
 
-                            <View style={{ marginTop: 10, justifyContent: "center", alignItems: "center", width:"95%" }}>
-                                <Text style={{ color: "grey", fontSize: 12, textAlign:"center"}}>En créant un compte, vous acceptez nos conditions
+                            <View style={{ marginTop: 10, justifyContent: "center", alignItems: "center", width: "95%" }}>
+                                <Text style={{ color: "grey", fontSize: 12, textAlign: "center" }}>En créant un compte, vous acceptez nos conditions
                                     d'utilisation et vous confirmez avoir lu notre politique de confidentialité.</Text>
-                                    <TouchableOpacity onPress={() => navigation.navigate('ConditionsJuridiquesPolitiques')}>
-                                        <Text style={{ color: "#176BEF", fontSize: 12, textAlign:"center"}}>
-                                            Lire la politique de confidentialité
-                                        </Text>
-                                    </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigation.navigate('ConditionsJuridiquesPolitiques')}>
+                                    <Text style={{ color: "#176BEF", fontSize: 12, textAlign: "center" }}>
+                                        Lire la politique de confidentialité
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
 
                             <View
