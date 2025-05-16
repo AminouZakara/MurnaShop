@@ -6,6 +6,7 @@ import auth from '@react-native-firebase/auth'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { db } from '../../firebaseConfig'
 import { FIREBASE_WEB_CLIENT_ID } from '@env'
+import { getUserRole } from '../../Shared/Services'
 
 const Login = () => {
     const navigation = useNavigation()
@@ -22,70 +23,108 @@ const Login = () => {
                 "Votre Information est Invalide",
                 "SVP remplissez tous les champs",
                 [
-                    {
-                        text: "Cancel",
-                        onPress: () => console.log("Cancel Pressed"),
-                        style: "cancel"
-                    },
+                    { text: "Cancel", onPress: () => console.log("Cancel Pressed"), style: "cancel" },
                     { text: "OK", onPress: () => console.log("OK Pressed") }
                 ],
                 { cancelable: false }
             );
-        } else {
-            try {
-                setLoading(true);
-                const user = await auth().signInWithEmailAndPassword(email, password);
-                const docRef = doc(db, "murnaShoppingUsers", user.user.uid);
-                const docSnap = await getDoc(docRef);
-                //if user email is verified login
-                if (user.user.emailVerified) {
-                    if (docSnap.exists()) {
-                        const user = docSnap.data();
-                        await updateDoc(docRef, {
-                            lastLogin: new Date(),
-                        });
-                        navigation.navigate('Main');
-                        setLoading(false);
-                    }
-                } else {
-                    Alert.alert(
-                        "Email non Verifié",
-                        "SVP verifier votre email avant de vous connecter",
-                        [
-                            {
-                                text: "OK", onPress: () => {
-                                    firebase.auth().signOut();
-                                    navigation.navigate('Login');
-                                    console.log("OK Pressed")
-                                }
-                            }
-                        ],
-                        { cancelable: false }
-                    );
-                    setLoading(false);
+            return;
+        }
 
-                }
-            } catch (error) {
-                setLoading(false);
+        try {
+            setLoading(true);
+            // Sign in with email and password
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
                 Alert.alert(
-                    "Incorrect",
-                    "SVP verifier votre email et votre mot de passe",
+                    "Email Invalide",
+                    "SVP entrez une adresse email valide",
+                    [
+                        { text: "Cancel", onPress: () => console.log("Cancel Pressed"), style: "cancel" },
+                        { text: "OK", onPress: () => console.log("OK Pressed") }
+                    ],
+                    { cancelable: false }
+                );
+                return;
+            }
+            if (password.length < 6) {
+                Alert.alert(
+                    "Mot de passe Invalide",
+                    "SVP entrez un mot de passe valide",
+                    [
+                        { text: "Cancel", onPress: () => console.log("Cancel Pressed"), style: "cancel" },
+                        { text: "OK", onPress: () => console.log("OK Pressed") }
+                    ],
+                    { cancelable: false }
+                );
+                return;
+            }
+            const emailLower = email.toLowerCase();
+            const userCredential = await auth().signInWithEmailAndPassword(emailLower, password);
+            const user = userCredential.user;
+
+            // Check email verification
+            if (!user.emailVerified) {
+                Alert.alert(
+                    "Email non Vérifié",
+                    "SVP vérifier votre email avant de vous connecter",
                     [
                         {
-                            text: "OK", onPress: () => {
-                                console.log("OK Pressed")
+                            text: "OK",
+                            onPress: async () => {
+                                await auth().signOut();
+                                navigation.navigate('Login');
                             }
                         }
                     ],
                     { cancelable: false }
                 );
-                setError(error.message);
-                console.log("This is the err", error);
-
+                return;
             }
-        }
 
-    }
+            const docRef = doc(db, "murnaShoppingUsers", user.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists() && docSnap.data().emailVerified === true) {
+                await updateDoc(docRef, {
+                    lastLogin: new Date(),
+                });
+            }
+
+            // Get role and navigate accordingly
+            const uid = user.uid;
+            const role = await getUserRole(uid); // Your own utility function
+
+            switch (role) {
+                case 'admin':
+                    navigation.navigate('AdminMain');
+                    break;
+                case 'author':
+                    navigation.navigate('AuthorMain');
+                    break;
+                case 'cargaison':
+                    navigation.navigate('CargaisonMain');
+                    break;
+                case 'user':
+                    navigation.navigate('Main');
+                    break;
+                default:
+                    Alert.alert("Erreur", "Rôle inconnu. Contactez le support.");
+                    break;
+            }
+
+        } catch (error) {
+            console.error("Login Error:", error);
+            setError(error.message);
+            Alert.alert(
+                "Incorrect",
+                "SVP vérifier votre email et votre mot de passe",
+                [{ text: "OK" }]
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     //Google Login 
@@ -103,8 +142,9 @@ const Login = () => {
             const credential = auth.GoogleAuthProvider.credential(token);
             const userCredntial = await auth().signInWithCredential(credential);
             //setAuthUser to user credential
-            setUserAuth(userCredntial.user);
             console.log(userCredntial.user);
+            const user = userCredntial.user;
+
             // if user is a new sign in, save data
             const docRef = doc(db, "murnaShoppingUsers", userCredntial.user.uid);
             if (userCredntial.additionalUserInfo.isNewUser) {
@@ -132,28 +172,76 @@ const Login = () => {
                 await updateDoc(docRef, {
                     lastLogin: new Date(),
                 });
-                console.log('User already exists');
-                navigation.navigate('Main');
+                const role = await getUserRole(user.uid);
+
+                switch (role) {
+                    case 'admin':
+                        navigation.navigate('AdminMain');
+                        break;
+                    case 'author':
+                        navigation.navigate('AuthorMain');
+                        break;
+                    case 'cargaison':
+                        navigation.navigate('CargaisonMain');
+                        break;
+                    case 'user':
+                        navigation.navigate('Main');
+                        break;
+                    default:
+                        Alert.alert(
+                            "Erreur",
+                            "Rôle utilisateur inconnu. Contactez un administrateur.",
+                            [{ text: "OK" }]
+                        );
+                }
+                console.log('Existing user logged in with role:', role);
                 setIsLoading(false)
             }
+
+            setUserAuth(user); // Optio
         } catch (error) {
-            console.error(error);
+            console.error('Google Login Error:', error);
+            Alert.alert(
+                "Erreur de connexion",
+                error.message || "Impossible de se connecter avec Google. Veuillez réessayer."
+            );
             setIsLoading(false)
         }
     }
 
     //
     useEffect(() => {
-        const subscriber = auth().onAuthStateChanged((user) => {
-            if (user) {
-                setUserAuth(user)
-                navigation.navigate('Main');
+        const unsubscribe = auth().onAuthStateChanged(async (user) => {
+            if (user && user.emailVerified) {
+                setUserAuth(user);
+
+                // Optional: load role and redirect
+                const role = await getUserRole(user.uid);
+                switch (role) {
+                    case 'admin':
+                        navigation.navigate('AdminMain');
+                        break;
+                    case 'author':
+                        navigation.navigate('AuthorMain');
+                        break;
+                    case 'cargaison':
+                        navigation.navigate('CargaisonMain');
+                        break;
+                    case 'user':
+                        navigation.navigate('Main');
+                        break;
+                    default:
+                        Alert.alert("Erreur", "Rôle inconnu");
+                        break;
+                }
+
             } else {
-                setUserAuth(null)
+                setUserAuth(null);
                 navigation.navigate('Login');
             }
         });
-        return subscriber;
+
+        return unsubscribe;
     }, []);
 
     const forgotPassword = () => {

@@ -1,5 +1,20 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import { doc, getDoc } from "firebase/firestore"
+import { db } from "../firebaseConfig"
 
+
+export const getUserRole = async (uid) => {
+    try {
+        const userDoc = await getDoc(doc(db, 'murnaShoppingUsers', uid));
+        if (userDoc.exists()) {
+            return userDoc.data().role;
+        }
+        return null;
+    } catch (error) {
+        console.log('Error fetching user role:', error);
+        return null;
+    }
+};
 
 const setAuthUser = async (value) => {
     try {
@@ -36,4 +51,4 @@ const resetTheApp = async () => {
 }
 
 
-export default { setAuthUser, getAuthUser, removeAuthUser, resetTheApp }
+export default {getUserRole, setAuthUser, getAuthUser, removeAuthUser, resetTheApp }

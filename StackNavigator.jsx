@@ -49,6 +49,8 @@ const StackNavigator = () => {
     useEffect(() => {
         dispatch(loadCart());
     }, [dispatch]);
+
+    //when the user is a normal user
     function MyTabs() {
         return (
             <Tab.Navigator>
@@ -101,6 +103,124 @@ const StackNavigator = () => {
             </Tab.Navigator>
         );
     }
+    //when the user is an admin
+    function MyAdminTabs() {
+        return (
+            <Tab.Navigator>
+                <Tab.Screen name="AdminHomeScreen" component={AdminHomeScreen} options={{
+                    tabBarLabel: 'Home',
+                    tabBarActiveTintColor: '#FF9900',
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarIcon: ({ focused }) => focused ? (
+                        <Entypo name="home" size={24} color="#FF9900" />
+                    ) : (
+                        <Entypo name="home" size={24} color="gray" />
+                    )
+
+                }} />
+                <Tab.Screen name="AddNewProduct" component={AddNewProduct} options={{
+                    tabBarLabel: 'Add New Product',
+                    tabBarActiveTintColor: '#FF9900',
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarIcon: ({ focused }) => focused ? (
+                        <FontAwesome name="plus-square" size={24} color="#FF9900" />
+                    ) : (
+                        <FontAwesome name="plus-square" size={24} color="gray" />
+                    )
+                }} />
+                 <Tab.Screen name="Profile" component={ProfileScreen} options={{
+                    headerShown: false,
+                    tabBarLabel: 'Profile',
+                    tabBarActiveTintColor: '#FF9900',
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarIcon: ({ focused }) => focused ? (
+                        <Ionicons name="person" size={24} color="#FF9900" />
+                    ) : (
+                        <Ionicons name="person" size={24} color="gray" />
+                    )
+                }} />
+            </Tab.Navigator>
+        );
+    }
+    //when the user is an author
+    function MyAuthorTabs() {
+        return (
+            <Tab.Navigator>
+                <Tab.Screen name="AuthorHomeScreen" component={AuthorHomeScreen} options={{
+                    tabBarLabel: 'Home',
+                    tabBarActiveTintColor: '#FF9900',
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarIcon: ({ focused }) => focused ? (
+                        <Entypo name="home" size={24} color="#FF9900" />
+                    ) : (
+                        <Entypo name="home" size={24} color="gray" />
+                    )
+
+                }} />
+                <Tab.Screen name="AddLocations" component={AddLocations} options={{
+                    tabBarLabel: 'Add New Product',
+                    tabBarActiveTintColor: '#FF9900',
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarIcon: ({ focused }) => focused ? (
+                        <FontAwesome name="plus-square" size={24} color="#FF9900" />
+                    ) : (
+                        <FontAwesome name="plus-square" size={24} color="gray" />
+                    )
+                }} />
+                 <Tab.Screen name="Profile" component={ProfileScreen} options={{
+                    headerShown: false,
+                    tabBarLabel: 'Profile',
+                    tabBarActiveTintColor: '#FF9900',
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarIcon: ({ focused }) => focused ? (
+                        <Ionicons name="person" size={24} color="#FF9900" />
+                    ) : (
+                        <Ionicons name="person" size={24} color="gray" />
+                    )
+                }} />
+            </Tab.Navigator>
+        );
+    }
+    //when the user is a cargaison
+    function MyCargoTabs() {
+        return (
+            <Tab.Navigator>
+                <Tab.Screen name="CargaisonScreen" component={CargaisonScreen} options={{
+                    tabBarLabel: 'Home',
+                    tabBarActiveTintColor: '#FF9900',
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarIcon: ({ focused }) => focused ? (
+                        <Entypo name="home" size={24} color="#FF9900" />
+                    ) : (
+                        <Entypo name="home" size={24} color="gray" />
+                    )
+
+                }} />
+                <Tab.Screen name="CargaisonDetails" component={CargaisonDetails} options={{
+                    tabBarLabel: 'Add New Product',
+                    tabBarActiveTintColor: '#FF9900',
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarIcon: ({ focused }) => focused ? (
+                        <FontAwesome name="plus-square" size={24} color="#FF9900" />
+                    ) : (
+                        <FontAwesome name="plus-square" size={24} color="gray" />
+                    )
+                }} />
+                 <Tab.Screen name="Profile" component={ProfileScreen} options={{
+                    headerShown: false,
+                    tabBarLabel: 'Profile',
+                    tabBarActiveTintColor: '#FF9900',
+                    tabBarInactiveTintColor: 'gray',
+                    tabBarIcon: ({ focused }) => focused ? (
+                        <Ionicons name="person" size={24} color="#FF9900" />
+                    ) : (
+                        <Ionicons name="person" size={24} color="gray" />
+                    )
+                }} />
+            </Tab.Navigator>
+        );
+    }
+    
     //color f4511e
     return (
         <NavigationContainer>
@@ -110,6 +230,9 @@ const StackNavigator = () => {
                 <Stack.Screen name='Register' component={Register} options={{ headerShown: false }} />
                 <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
                 <Stack.Screen name="Main" component={MyTabs} options={{ headerShown: false }} />
+
+
+                {/*------------  --------*/}
                 {/*------------ Home Screens --------*/}
                 <Stack.Screen name='SearchScreen' component={SearchScreen} options={{ headerShown: false }} />
 
@@ -148,19 +271,17 @@ const StackNavigator = () => {
 
 
                 {/* ------------ Admin Screens --------*/}
-                <Stack.Screen name='AdminHomeScreen' component={AdminHomeScreen} options={{ headerShown: true }} />
-                <Stack.Screen name='AddNewProduct' component={AddNewProduct} options={{ headerShown: true }} />
-                {/* ------------ Commandes --------*/}
+                <Stack.Screen name="AdminMain" component={MyAdminTabs} options={{ headerShown: false }} />
                 <Stack.Screen name='CommandeDetails' component={CommandeDetails} options={{ headerShown: true }} /> 
 
 
                 {/* ------------ Author Screens --------*/}
-                <Stack.Screen name='AuthorHomeScreen' component={AuthorHomeScreen} options={{ headerShown: true }} />
-                <Stack.Screen name='AddLocations' component={AddLocations} options={{ headerShown: true }} />
+                <Stack.Screen name="AuthorMain" component={MyAuthorTabs} options={{ headerShown: false }} />
 
 
 
                 {/* ------------ Cargaison Screens --------*/}
+                <Stack.Screen name="CargaisonMain" component={MyCargoTabs} options={{ headerShown: false }} />
                 <Stack.Screen name='CargaisonScreen' component={CargaisonScreen} options={{ headerShown: false }} />
                 <Stack.Screen name='CargaisonDetails' component={CargaisonDetails} options={{ headerShown: true }} />
 

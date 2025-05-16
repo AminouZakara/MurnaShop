@@ -1,9 +1,30 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import { getUserRole } from '../../Shared/Services'
+import auth from '@react-native-firebase/auth'
+
 
 const AuthorHomeScreen = () => {
     const navigation = useNavigation()
+   
+useEffect(() => {
+  const unsubscribe = auth().onAuthStateChanged(async (user) => {
+    if (user) {
+      const role = await getUserRole(user.uid);
+      if (role === 'author') {
+        // Do nothing or navigate to AuthorHome if needed
+        console.log("Author logged in");
+      } else {
+        navigation.replace('Main');
+      }
+    } else {
+      navigation.replace('Login'); // Optional: handle unauthenticated users
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
   return (
     <View>
       <Text>Author Home Screen</Text>
